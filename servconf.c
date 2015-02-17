@@ -1939,7 +1939,7 @@ parse_server_config(ServerOptions *options, const char *filename, Buffer *conf,
 
 	debug2("%s: config %s len %d", __func__, filename, buffer_len(conf));
 
-	obuf = cbuf = xstrdup(buffer_ptr(conf));
+	obuf = cbuf = xstrdup((const char*)buffer_ptr(conf));
 	active = connectinfo ? 0 : 1;
 	linenum = 1;
 	while ((cp = strsep(&cbuf, "\n")) != NULL) {

@@ -694,7 +694,7 @@ mm_answer_sign(int sock, Buffer *m)
 
 	debug3("%s", __func__);
 
-	if ((r = sshbuf_get_u32(m, &keyid)) != 0 ||
+	if ((r = sshbuf_get_u32(m, (unsigned int*)&keyid)) != 0 ||
 	    (r = sshbuf_get_string(m, &p, &datlen)) != 0)
 		fatal("%s: buffer error: %s", __func__, ssh_err(r));
 
@@ -1264,7 +1264,7 @@ monitor_valid_userblob(u_char *data, u_int datalen)
 	buffer_append(&b, data, datalen);
 
 	if (datafellows & SSH_OLD_SESSIONID) {
-		p = buffer_ptr(&b);
+		p = (char*)buffer_ptr(&b);
 		len = buffer_len(&b);
 		if ((session_id2 == NULL) ||
 		    (len < session_id2_len) ||

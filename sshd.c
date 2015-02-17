@@ -829,7 +829,7 @@ list_hostkey_types(void)
 		}
 	}
 	buffer_append(&b, "\0", 1);
-	ret = xstrdup(buffer_ptr(&b));
+	ret = xstrdup((const char*)buffer_ptr(&b));
 	buffer_free(&b);
 	debug("list_hostkey_types: %s", ret);
 	return ret;
@@ -1017,7 +1017,7 @@ send_rexec_state(int fd, Buffer *conf)
 	 *	string rngseed		(only if OpenSSL is not self-seeded)
 	 */
 	buffer_init(&m);
-	buffer_put_cstring(&m, buffer_ptr(conf));
+	buffer_put_cstring(&m, (const char*)buffer_ptr(conf));
 
 #ifdef WITH_SSH1
 	if (sensitive_data.server_key != NULL &&

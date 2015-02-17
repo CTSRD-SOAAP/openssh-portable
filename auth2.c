@@ -425,7 +425,7 @@ authmethods_get(Authctxt *authctxt)
 		    strlen(authmethods[i]->name));
 	}
 	buffer_append(&b, "\0", 1);
-	list = xstrdup(buffer_ptr(&b));
+	list = xstrdup((const char*)buffer_ptr(&b));
 	buffer_free(&b);
 	return list;
 }
