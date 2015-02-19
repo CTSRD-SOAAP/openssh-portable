@@ -26,7 +26,7 @@
  */
 
 #include "includes.h"
-
+ 
 #include <sys/types.h>
 #include <sys/socket.h>
 #include "openbsd-compat/sys-tree.h"
@@ -102,6 +102,8 @@
 #include "authfd.h"
 #include "match.h"
 #include "ssherr.h"
+
+#include <soaap.h>
 
 #ifdef GSSAPI
 static Gssctxt *gsscontext = NULL;
@@ -314,6 +316,7 @@ monitor_permit(struct mon_table *ent, enum monitor_reqtype type, int permit)
 	}
 }
 
+__soaap_sandbox_persistent("monitor")
 static void
 monitor_permit_authentications(int permit)
 {
@@ -328,6 +331,7 @@ monitor_permit_authentications(int permit)
 	}
 }
 
+__soaap_sandbox_persistent("monitor")
 void
 monitor_child_preauth(Authctxt *_authctxt, struct monitor *pmonitor)
 {
@@ -362,6 +366,55 @@ monitor_child_preauth(Authctxt *_authctxt, struct monitor *pmonitor)
 		partial = 0;
 		auth_method = "unknown";
 		auth_submethod = NULL;
+
+	// TODO: complete check which ones are allowed
+// struct mon_table mon_dispatch_proto20[] = {
+// #ifdef WITH_OPENSSL
+//     {MONITOR_REQ_MODULI, MON_ONCE, mm_answer_moduli},
+// #endif
+//     {MONITOR_REQ_SIGN, MON_ONCE, mm_answer_sign},
+//     {MONITOR_REQ_PWNAM, MON_ONCE, mm_answer_pwnamallow},
+//     {MONITOR_REQ_AUTHSERV, MON_ONCE, mm_answer_authserv},
+//     {MONITOR_REQ_AUTH2_READ_BANNER, MON_ONCE, mm_answer_auth2_read_banner},
+//     {MONITOR_REQ_AUTHPASSWORD, MON_AUTH, mm_answer_authpassword},
+// #ifdef USE_PAM
+//     {MONITOR_REQ_PAM_START, MON_ONCE, mm_answer_pam_start},
+//     {MONITOR_REQ_PAM_ACCOUNT, 0, mm_answer_pam_account},
+//     {MONITOR_REQ_PAM_INIT_CTX, MON_ISAUTH, mm_answer_pam_init_ctx},
+//     {MONITOR_REQ_PAM_QUERY, MON_ISAUTH, mm_answer_pam_query},
+//     {MONITOR_REQ_PAM_RESPOND, MON_ISAUTH, mm_answer_pam_respond},
+//     {MONITOR_REQ_PAM_FREE_CTX, MON_ONCE|MON_AUTHDECIDE, mm_answer_pam_free_ctx},
+// #endif
+// #ifdef SSH_AUDIT_EVENTS
+//     {MONITOR_REQ_AUDIT_EVENT, MON_PERMIT, mm_answer_audit_event},
+// #endif
+// #ifdef BSD_AUTH
+//     {MONITOR_REQ_BSDAUTHQUERY, MON_ISAUTH, mm_answer_bsdauthquery},
+//     {MONITOR_REQ_BSDAUTHRESPOND, MON_AUTH, mm_answer_bsdauthrespond},
+// #endif
+// #ifdef SKEY
+//     {MONITOR_REQ_SKEYQUERY, MON_ISAUTH, mm_answer_skeyquery},
+//     {MONITOR_REQ_SKEYRESPOND, MON_AUTH, mm_answer_skeyrespond},
+// #endif
+//     {MONITOR_REQ_KEYALLOWED, MON_ISAUTH, mm_answer_keyallowed},
+//     {MONITOR_REQ_KEYVERIFY, MON_AUTH, mm_answer_keyverify},
+// #ifdef GSSAPI
+//     {MONITOR_REQ_GSSSETUP, MON_ISAUTH, mm_answer_gss_setup_ctx},
+//     {MONITOR_REQ_GSSSTEP, MON_ISAUTH, mm_answer_gss_accept_ctx},
+//     {MONITOR_REQ_GSSUSEROK, MON_AUTH, mm_answer_gss_userok},
+//     {MONITOR_REQ_GSSCHECKMIC, MON_ISAUTH, mm_answer_gss_checkmic},
+// #endif
+//     {0, 0, NULL}
+// };
+		__soaap_rpc_recv("preauth", MONITOR_REQ_MODULI, mm_answer_moduli);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_SIGN, mm_answer_sign);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_SESSKEY, mm_answer_sign);
+#ifdef SSH_AUDIT_EVENTS
+		__soaap_rpc_recv("preauth", MONITOR_REQ_AUDIT_EVENT, mm_answer_audit_event);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_AUDIT_COMMAND, mm_answer_audit_command);
+#endif
+// TODO: compat15 (a lot more functions (and how to handle mon_once?)
+
 		authenticated = (monitor_read(pmonitor, mon_dispatch, &ent) == 1);
 
 		/* Special handling for multiple required authentications */
@@ -438,6 +491,7 @@ monitor_child_handler(int sig)
 	kill(monitor_child_pid, sig);
 }
 
+__soaap_sandbox_persistent("monitor")
 void
 monitor_child_postauth(struct monitor *pmonitor)
 {
@@ -468,10 +522,55 @@ monitor_child_postauth(struct monitor *pmonitor)
 		monitor_permit(mon_dispatch, MONITOR_REQ_PTYCLEANUP, 1);
 	}
 
-	for (;;)
+	for (;;) {
+// compat20:
+// struct mon_table mon_dispatch_postauth20[] = {
+// #ifdef WITH_OPENSSL
+//     {MONITOR_REQ_MODULI, 0, mm_answer_moduli},
+// #endif
+//     {MONITOR_REQ_SIGN, 0, mm_answer_sign},
+//     {MONITOR_REQ_PTY, 0, mm_answer_pty},
+//     {MONITOR_REQ_PTYCLEANUP, 0, mm_answer_pty_cleanup},
+//     {MONITOR_REQ_TERM, 0, mm_answer_term},
+// #ifdef SSH_AUDIT_EVENTS
+//     {MONITOR_REQ_AUDIT_EVENT, MON_PERMIT, mm_answer_audit_event},
+//     {MONITOR_REQ_AUDIT_COMMAND, MON_PERMIT, mm_answer_audit_command},
+// #endif
+//     {0, 0, NULL}
+// };
+		__soaap_rpc_recv("postauth", MONITOR_REQ_MODULI, mm_answer_moduli);
+		__soaap_rpc_recv("postauth", MONITOR_REQ_SIGN, mm_answer_sign);
+
+// TODO: compat15 (a lot more functions (and how to handle mon_once!)
+// struct mon_table mon_dispatch_postauth15[] = {
+// #ifdef WITH_SSH1
+//     {MONITOR_REQ_PTY, MON_ONCE, mm_answer_pty},
+//     {MONITOR_REQ_PTYCLEANUP, MON_ONCE, mm_answer_pty_cleanup},
+//     {MONITOR_REQ_TERM, 0, mm_answer_term},
+// #ifdef SSH_AUDIT_EVENTS
+//     {MONITOR_REQ_AUDIT_EVENT, MON_PERMIT, mm_answer_audit_event},
+//     {MONITOR_REQ_AUDIT_COMMAND, MON_PERMIT|MON_ONCE, mm_answer_audit_command},
+// #endif
+// #endif /* WITH_SSH1 */
+//     {0, 0, NULL}
+// };
+		//common to both:
+		__soaap_rpc_recv("postauth", MONITOR_REQ_TERM, mm_answer_term); // quit the monitor process (session ended)
+
+		// if !no_pty_flag, i.e. allow_pty
+		__soaap_rpc_recv("postauth", MONITOR_REQ_PTY, mm_answer_pty);
+		__soaap_rpc_recv("postauth", MONITOR_REQ_PTYCLEANUP, mm_answer_pty_cleanup);
+
+#ifdef SSH_AUDIT_EVENTS
+		__soaap_rpc_recv("postauth", MONITOR_REQ_AUDIT_EVENT, mm_answer_audit_event);
+		__soaap_rpc_recv("postauth", MONITOR_REQ_AUDIT_COMMAND, mm_answer_audit_command);
+#endif
+
 		monitor_read(pmonitor, mon_dispatch, NULL);
+	}
 }
 
+__soaap_sandbox_persistent("monitor")
 void
 monitor_sync(struct monitor *pmonitor)
 {
@@ -502,6 +601,7 @@ mm_zfree(struct mm_master *mm, void *address)
 	mm_free(mm, address);
 }
 
+__soaap_sandbox_persistent("monitor")
 static int
 monitor_read_log(struct monitor *pmonitor)
 {
@@ -549,6 +649,7 @@ monitor_read_log(struct monitor *pmonitor)
 	return 0;
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 monitor_read(struct monitor *pmonitor, struct mon_table *ent,
     struct mon_table **pent)
@@ -646,6 +747,7 @@ monitor_reset_key_state(void)
 }
 
 #ifdef WITH_OPENSSL
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_moduli(int sock, Buffer *m)
 {
@@ -677,11 +779,12 @@ mm_answer_moduli(int sock, Buffer *m)
 
 		DH_free(dh);
 	}
+	__soaap_rpc_send("preauth,postauth", MONITOR_ANS_MODULI);
 	mm_request_send(sock, MONITOR_ANS_MODULI, m);
 	return (0);
 }
 #endif
-
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_sign(int sock, Buffer *m)
 {
@@ -745,7 +848,7 @@ mm_answer_sign(int sock, Buffer *m)
 }
 
 /* Retrieves the password entry and also checks if the user is permitted */
-
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pwnamallow(int sock, Buffer *m)
 {
@@ -837,6 +940,7 @@ mm_answer_pwnamallow(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int mm_answer_auth2_read_banner(int sock, Buffer *m)
 {
 	char *banner;
@@ -850,6 +954,7 @@ int mm_answer_auth2_read_banner(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_authserv(int sock, Buffer *m)
 {
@@ -868,6 +973,7 @@ mm_answer_authserv(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_authpassword(int sock, Buffer *m)
 {
@@ -900,6 +1006,8 @@ mm_answer_authpassword(int sock, Buffer *m)
 }
 
 #ifdef BSD_AUTH
+
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_bsdauthquery(int sock, Buffer *m)
 {
@@ -930,6 +1038,7 @@ mm_answer_bsdauthquery(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_bsdauthrespond(int sock, Buffer *m)
 {
@@ -963,6 +1072,7 @@ mm_answer_bsdauthrespond(int sock, Buffer *m)
 #endif
 
 #ifdef SKEY
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_skeyquery(int sock, Buffer *m)
 {
@@ -984,6 +1094,7 @@ mm_answer_skeyquery(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_skeyrespond(int sock, Buffer *m)
 {
@@ -1012,6 +1123,7 @@ mm_answer_skeyrespond(int sock, Buffer *m)
 #endif
 
 #ifdef USE_PAM
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pam_start(int sock, Buffer *m)
 {
@@ -1025,6 +1137,7 @@ mm_answer_pam_start(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pam_account(int sock, Buffer *m)
 {
@@ -1046,6 +1159,7 @@ mm_answer_pam_account(int sock, Buffer *m)
 static void *sshpam_ctxt, *sshpam_authok;
 extern KbdintDevice sshpam_device;
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pam_init_ctx(int sock, Buffer *m)
 {
@@ -1065,6 +1179,7 @@ mm_answer_pam_init_ctx(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pam_query(int sock, Buffer *m)
 {
@@ -1099,6 +1214,7 @@ mm_answer_pam_query(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pam_respond(int sock, Buffer *m)
 {
@@ -1130,6 +1246,7 @@ mm_answer_pam_respond(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pam_free_ctx(int sock, Buffer *m)
 {
@@ -1144,6 +1261,7 @@ mm_answer_pam_free_ctx(int sock, Buffer *m)
 }
 #endif
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_keyallowed(int sock, Buffer *m)
 {
@@ -1252,6 +1370,7 @@ mm_answer_keyallowed(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 static int
 monitor_valid_userblob(u_char *data, u_int datalen)
 {
@@ -1312,6 +1431,7 @@ monitor_valid_userblob(u_char *data, u_int datalen)
 	return (fail == 0);
 }
 
+__soaap_sandbox_persistent("monitor")
 static int
 monitor_valid_hostbasedblob(u_char *data, u_int datalen, char *cuser,
     char *chost)
@@ -1372,6 +1492,7 @@ monitor_valid_hostbasedblob(u_char *data, u_int datalen, char *cuser,
 	return (fail == 0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_keyverify(int sock, Buffer *m)
 {
@@ -1433,6 +1554,7 @@ mm_answer_keyverify(int sock, Buffer *m)
 	return (verified == 1);
 }
 
+__soaap_sandbox_persistent("monitor")
 static void
 mm_record_login(Session *s, struct passwd *pw)
 {
@@ -1458,6 +1580,7 @@ mm_record_login(Session *s, struct passwd *pw)
 	    (struct sockaddr *)&from, fromlen);
 }
 
+__soaap_sandbox_persistent("monitor")
 static void
 mm_session_close(Session *s)
 {
@@ -1469,6 +1592,7 @@ mm_session_close(Session *s)
 	session_unused(s->self);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pty(int sock, Buffer *m)
 {
@@ -1536,6 +1660,7 @@ mm_answer_pty(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pty_cleanup(int sock, Buffer *m)
 {
@@ -1583,6 +1708,7 @@ mm_answer_sesskey(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_sessid(int sock, Buffer *m)
 {
@@ -1601,6 +1727,7 @@ mm_answer_sessid(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_rsa_keyallowed(int sock, Buffer *m)
 {
@@ -1648,6 +1775,7 @@ mm_answer_rsa_keyallowed(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_rsa_challenge(int sock, Buffer *m)
 {
@@ -1686,6 +1814,7 @@ mm_answer_rsa_challenge(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_rsa_response(int sock, Buffer *m)
 {
@@ -1732,6 +1861,7 @@ mm_answer_rsa_response(int sock, Buffer *m)
 }
 #endif
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_term(int sock, Buffer *req)
 {
@@ -1760,6 +1890,7 @@ mm_answer_term(int sock, Buffer *req)
 
 #ifdef SSH_AUDIT_EVENTS
 /* Report that an audit event occurred */
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_audit_event(int socket, Buffer *m)
 {
@@ -1785,6 +1916,7 @@ mm_answer_audit_event(int socket, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_audit_command(int socket, Buffer *m)
 {
@@ -1800,6 +1932,7 @@ mm_answer_audit_command(int socket, Buffer *m)
 }
 #endif /* SSH_AUDIT_EVENTS */
 
+__soaap_sandbox_persistent("monitor")
 void
 monitor_apply_keystate(struct monitor *pmonitor)
 {
@@ -1842,6 +1975,7 @@ monitor_apply_keystate(struct monitor *pmonitor)
 
 /* This function requries careful sanity checking */
 
+__soaap_sandbox_persistent("monitor")
 void
 mm_get_keystate(struct monitor *pmonitor)
 {
@@ -1862,6 +1996,7 @@ mm_get_keystate(struct monitor *pmonitor)
 		fatal("fcntl(%d, F_SETFD)", x); \
 } while (0)
 
+__soaap_sandbox_persistent("monitor")
 static void
 monitor_openfds(struct monitor *mon, int do_logfds)
 {
@@ -1887,6 +2022,7 @@ monitor_openfds(struct monitor *mon, int do_logfds)
 
 #define MM_MEMSIZE	65536
 
+__soaap_sandbox_persistent("monitor")
 struct monitor *
 monitor_init(void)
 {
@@ -1911,6 +2047,7 @@ monitor_init(void)
 	return mon;
 }
 
+__soaap_sandbox_persistent("monitor")
 void
 monitor_reinit(struct monitor *mon)
 {
@@ -1918,6 +2055,7 @@ monitor_reinit(struct monitor *mon)
 }
 
 #ifdef GSSAPI
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_gss_setup_ctx(int sock, Buffer *m)
 {
@@ -1943,6 +2081,7 @@ mm_answer_gss_setup_ctx(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_gss_accept_ctx(int sock, Buffer *m)
 {
@@ -1973,6 +2112,7 @@ mm_answer_gss_accept_ctx(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_gss_checkmic(int sock, Buffer *m)
 {
@@ -2001,6 +2141,7 @@ mm_answer_gss_checkmic(int sock, Buffer *m)
 	return (0);
 }
 
+__soaap_sandbox_persistent("monitor")
 int
 mm_answer_gss_userok(int sock, Buffer *m)
 {

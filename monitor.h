@@ -28,6 +28,8 @@
 #ifndef _MONITOR_H_
 #define _MONITOR_H_
 
+#include <soaap.h>
+
 /* Please keep *_REQ_* values on even numbers and *_ANS_* on odd numbers */
 enum monitor_reqtype {
 	MONITOR_REQ_MODULI = 0, MONITOR_ANS_MODULI = 1,
@@ -79,19 +81,28 @@ struct monitor {
 	pid_t			 m_pid;
 };
 
+__soaap_sandbox_persistent("monitor")
 struct monitor *monitor_init(void);
+__soaap_sandbox_persistent("monitor")
 void monitor_reinit(struct monitor *);
+__soaap_sandbox_persistent("monitor")
 void monitor_sync(struct monitor *);
 
 struct Authctxt;
+__soaap_sandbox_persistent("monitor")
 void monitor_child_preauth(struct Authctxt *, struct monitor *);
+__soaap_sandbox_persistent("monitor")
 void monitor_child_postauth(struct monitor *);
 
 struct mon_table;
+__soaap_sandbox_persistent("monitor")
 int monitor_read(struct monitor*, struct mon_table *, struct mon_table **);
 
 /* Prototypes for request sending and receiving */
-void mm_request_send(int, enum monitor_reqtype, Buffer *);
+void _mm_request_send(int, enum monitor_reqtype, Buffer *);
+// #define mm_request_send(sandbox, fd, type, arg) do { __soaap_rpc_send(sandbox, type, arg); _mm_request_send(fd, type, arg); } while(0)
+// #define mm_request_send(fd, type, arg) do { __soaap_rpc_send("unknown", type); _mm_request_send(fd, type, arg); } while(0)
+#define mm_request_send(fd, type, arg) _mm_request_send(fd, type, arg)
 void mm_request_receive(int, Buffer *);
 void mm_request_receive_expect(int, enum monitor_reqtype, Buffer *);
 

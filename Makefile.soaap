@@ -1,9 +1,13 @@
+#TODO: check 7a2073c50b92c053594d48a651ebafae052a71ed (initial privsep)
+
+
 SOAAP_ROOT=$(CURDIR)/..
 DEFINES=-DHAVE_CONFIG_H -D_GNU_SOURCE
 # for some reason we need to add /usr/include and the dir with stddef.h here
-INCLUDES=-isystem $(SOAAP_ROOT)/llvm/build/lib/clang/3.7.0/include/ -isystem /usr/include -include $(SOAAP_ROOT)/soaap/include/soaap.h -I .
+INCLUDES=-isystem $(SOAAP_ROOT)/llvm/build/lib/clang/3.7.0/include/ -isystem /usr/include -I $(SOAAP_ROOT)/soaap/include/ -I .
 WARNINGS=-Wundef -Wno-conversion
-CFLAGS=-cc1 -emit-llvm -g -fcolor-diagnostics
+CFLAGS=-cc1 -emit-llvm -g
+#-fcolor-diagnostics
 CLANG=$(SOAAP_ROOT)/llvm/build/bin/clang
 LLVM_LINK=$(SOAAP_ROOT)/llvm/build/bin/llvm-link
 SOAAP=$(SOAAP_ROOT)/soaap/build/bin/soaap
@@ -23,9 +27,11 @@ all: sshd_executable.bc
 
 soaap: sshd_executable.bc
 	$(SOAAP) -o sshd.soaap $^
+soaap-extra: sshd_executable.bc
+	$(SOAAP) -soaap-infer-fp-targets -soaap-dump-rpc-graph -soaap-list-fp-calls -soaap-list-fp-targets -o sshd.soaap $^
 
 clean:
-	rm -f *.ll *.bc openbsd-compat/*.ll
+	rm -f *.ll *.bc openbsd-compat/*.ll sshd.soaap
 
 sshd_executable.bc: $(SSHD_IR_FILES) $(LIBSSH_IR_FILES) $(OPENBSD_COMPAT_IR_FILES)
 	$(LLVM_LINK) -o $@ $^

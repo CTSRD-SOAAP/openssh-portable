@@ -34,7 +34,19 @@ void	roaming_reply(int, u_int32_t, void *);
 void	set_out_buffer_size(size_t);
 ssize_t	roaming_write(int, const void *, size_t, int *);
 ssize_t	roaming_read(int, void *, size_t, int *);
-size_t	roaming_atomicio(ssize_t (*)(int, void *, size_t), int, void *, size_t);
+
+
+
+size_t	roaming_atomicio_read(int, void *, size_t);
+size_t	roaming_atomicio_write(int, void *, size_t);
+#ifndef COMBINE
+#define COMBINE1(X,Y) X##Y  // helper macro
+#define COMBINE(X,Y) COMBINE1(X,Y)
+#endif
+#define roaming_atomicio(func, ...) COMBINE(roaming_atomicio_,func) (__VA_ARGS__)
+
+
+
 u_int64_t	get_recv_bytes(void);
 u_int64_t	get_sent_bytes(void);
 void	roam_set_bytes(u_int64_t, u_int64_t);

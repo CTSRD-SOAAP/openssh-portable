@@ -32,20 +32,30 @@
 /*
  * Ensure all of data on socket comes through. f==read || f==vwrite
  */
-size_t
-atomicio6(ssize_t (*f) (int, void *, size_t), int fd, void *_s, size_t n,
-    int (*cb)(void *, size_t), void *);
-size_t	atomicio(ssize_t (*)(int, void *, size_t), int, void *, size_t);
+// SOAAP doesn't seem to handle system calls passed by function pointer
 
-#define vwrite (ssize_t (*)(int, void *, size_t))write
+size_t atomicio6_read(int fd, void *_s, size_t n, int (*cb)(void *, size_t), void *);
+size_t atomicio_read(int, void *, size_t);
+size_t atomicio6_write(int fd, void *_s, size_t n, int (*cb)(void *, size_t), void *);
+size_t atomicio_write(int, void *, size_t);
+
+// #define vwrite (ssize_t (*)(int, void *, size_t))write
+
+#ifndef COMBINE
+#define COMBINE1(X,Y) X##Y  // helper macro
+#define COMBINE(X,Y) COMBINE1(X,Y)
+#endif
+
+#define vwrite write
+#define atomicio6(func, ...) COMBINE(atomicio6_,func) (__VA_ARGS__)
+#define atomicio(func, ...) COMBINE(atomicio_,func) (__VA_ARGS__)
 
 /*
  * ensure all of data on socket comes through. f==readv || f==writev
  */
-size_t
-atomiciov6(ssize_t (*f) (int, const struct iovec *, int), int fd,
-    const struct iovec *_iov, int iovcnt, int (*cb)(void *, size_t), void *);
-size_t	atomiciov(ssize_t (*)(int, const struct iovec *, int),
-    int, const struct iovec *, int);
+size_t atomicio_readv6(int fd, const struct iovec *_iov, int iovcnt, int (*cb)(void *, size_t), void *);
+size_t atomicio_readv(int, const struct iovec *, int);
+size_t atomicio_writev6(int fd, const struct iovec *_iov, int iovcnt, int (*cb)(void *, size_t), void *);
+size_t atomicio_writev(int, const struct iovec *, int);
 
 #endif /* _ATOMICIO_H */

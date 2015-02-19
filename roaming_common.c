@@ -180,15 +180,21 @@ roaming_read(int fd, void *buf, size_t count, int *cont)
 }
 
 size_t
-roaming_atomicio(ssize_t(*f)(int, void*, size_t), int fd, void *buf,
-    size_t count)
+roaming_atomicio_read(int fd, void *buf, size_t count)
 {
-	size_t ret = atomicio(f, fd, buf, count);
-
-	if (f == vwrite && ret > 0 && !resume_in_progress) {
-		write_bytes += ret;
-	} else if (f == read && ret > 0 && !resume_in_progress) {
+	size_t ret = atomicio_read(fd, buf, count);
+	if (ret > 0 && !resume_in_progress) {
 		read_bytes += ret;
+	}
+	return ret;
+}
+
+size_t
+roaming_atomicio_write(int fd, void *buf, size_t count)
+{
+	size_t ret = atomicio_write(fd, buf, count);
+	if (ret > 0 && !resume_in_progress) {
+		write_bytes += ret;
 	}
 	return ret;
 }

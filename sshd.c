@@ -125,6 +125,8 @@
 #include "version.h"
 #include "ssherr.h"
 
+#include <soaap.h>
+
 #ifndef O_NOCTTY
 #define O_NOCTTY	0
 #endif
@@ -209,7 +211,7 @@ struct {
 	int	have_ssh1_key;
 	int	have_ssh2_key;
 	u_char	ssh1_cookie[SSH_SESSION_KEY_LENGTH];
-} sensitive_data;
+} sensitive_data /* __soaap_classify("<privileged>") */;
 
 /*
  * Flag indicating whether the RSA server key needs to be regenerated.
@@ -236,9 +238,9 @@ int *startup_pipes = NULL;
 int startup_pipe;		/* in child */
 
 /* variables used for privilege separation */
-int use_privsep = -1;
-struct monitor *pmonitor = NULL;
-int privsep_is_preauth = 1;
+int use_privsep __soaap_var_read("postauth") = -1;
+struct monitor *pmonitor __soaap_var_read("postauth") = NULL;
+int privsep_is_preauth __soaap_var_read("postauth") = 1;
 
 /* global authentication context */
 Authctxt *the_authctxt = NULL;
@@ -650,6 +652,7 @@ privsep_preauth_child(void)
 #endif
 }
 
+__soaap_sandbox_persistent("monitor")
 static int
 privsep_preauth(Authctxt *authctxt)
 {
@@ -707,6 +710,7 @@ privsep_preauth(Authctxt *authctxt)
 		return 1;
 	} else {
 		/* child */
+		// __soaap_sandboxed_region_start("preauth");  TODO: is moving this to after ssh_sandbox_child() correct?
 		close(pmonitor->m_sendfd);
 		close(pmonitor->m_log_recvfd);
 
@@ -719,11 +723,12 @@ privsep_preauth(Authctxt *authctxt)
 		setproctitle("%s", "[net]");
 		if (box != NULL)
 			ssh_sandbox_child(box);
-
+		__soaap_sandboxed_region_start("preauth");
 		return 0;
 	}
 }
 
+__soaap_sandbox_persistent("monitor")
 static void
 privsep_postauth(Authctxt *authctxt)
 {
@@ -749,13 +754,13 @@ privsep_postauth(Authctxt *authctxt)
 		verbose("User child is on pid %ld", (long)pmonitor->m_pid);
 		buffer_clear(&loginmsg);
 		monitor_child_postauth(pmonitor);
-
 		/* NEVERREACHED */
+		__soaap_sandboxed_region_end("monitor")
 		exit(0);
 	}
 
 	/* child */
-
+	// __soaap_sandboxed_region_start("postauth"); TODO: is moving this to after do_setusercontext correct ?
 	close(pmonitor->m_sendfd);
 	pmonitor->m_sendfd = -1;
 
@@ -771,7 +776,7 @@ privsep_postauth(Authctxt *authctxt)
 
 	/* Drop privileges */
 	do_setusercontext(authctxt->pw);
-
+	__soaap_sandboxed_region_start("postauth");
  skip:
 	/* It is safe now to apply the key state */
 	monitor_apply_keystate(pmonitor);
@@ -1566,7 +1571,7 @@ main(int ac, char **av)
 				fprintf(stderr, "too many host keys.\n");
 				exit(1);
 			}
-			options.host_key_files[options.num_host_key_files++] = 
+			options.host_key_files[options.num_host_key_files++] =
 			   derelativise_path(optarg);
 			break;
 		case 't':
@@ -2009,7 +2014,6 @@ main(int ac, char **av)
 		server_accept_loop(&sock_in, &sock_out,
 		    &newsock, config_s);
 	}
-
 	/* This is the child processing a new connection. */
 	setproctitle("%s", "[accepted]");
 
@@ -2133,6 +2137,8 @@ main(int ac, char **av)
 	signal(SIGALRM, grace_alarm_handler);
 	if (!debug_flag)
 		alarm(options.login_grace_time);
+	__soaap_sandboxed_region_start("monitor");
+
 
 	sshd_exchange_identification(sock_in, sock_out);
 
@@ -2185,6 +2191,8 @@ main(int ac, char **av)
 		mm_send_keystate(pmonitor);
 		exit(0);
 	}
+
+	__soaap_sandboxed_region_end("preauth");
 
  authenticated:
 	/*
@@ -2259,6 +2267,8 @@ main(int ac, char **av)
 	if (use_privsep)
 		mm_terminate();
 
+	__soaap_sandboxed_region_end("postauth");
+	__soaap_sandboxed_region_end("monitor");
 	exit(0);
 }
 
