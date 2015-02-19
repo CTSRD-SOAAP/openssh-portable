@@ -28,6 +28,8 @@
 #ifndef _MM_WRAP_H_
 #define _MM_WRAP_H_
 
+#include <soaap.h>
+
 extern int use_privsep;
 #define PRIVSEP(x)	(use_privsep ? mm_##x : x)
 
@@ -83,7 +85,9 @@ int mm_pty_allocate(int *, int *, char *, size_t);
 void mm_session_pty_cleanup2(struct Session *);
 
 /* SSHv1 interfaces */
+__soaap_sandbox_persistent("preauth")
 void mm_ssh1_session_id(u_char *);
+__soaap_sandbox_persistent("preauth")
 int mm_ssh1_session_key(BIGNUM *);
 
 /* Key export functions */

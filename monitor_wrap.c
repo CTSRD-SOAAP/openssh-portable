@@ -713,6 +713,7 @@ mm_terminate(void)
 }
 
 #ifdef WITH_SSH1
+__soaap_sandbox_persistent("preauth")
 int
 mm_ssh1_session_key(BIGNUM *num)
 {
