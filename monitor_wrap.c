@@ -185,6 +185,7 @@ mm_request_receive_expect(int sock, enum monitor_reqtype type, Buffer *m)
 }
 
 #ifdef WITH_OPENSSL
+__soaap_sandbox_persistent("preauth")
 DH *
 mm_choose_dh(int min, int nbits, int max)
 {
@@ -198,12 +199,12 @@ mm_choose_dh(int min, int nbits, int max)
 	buffer_put_int(&m, max);
 
 	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_MODULI, &m);
-	__soaap_rpc_send_with_params("monitor", MONITOR_REQ_MODULI, &m);
+	__soaap_rpc_send_with_params("<privileged>", MONITOR_REQ_MODULI, &m);
 
 
 	debug3("%s: waiting for MONITOR_ANS_MODULI", __func__);
 	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_MODULI, &m);
-	// __soaap_rpc_recv("monitor", MONITOR_ANS_MODULI, NULL);
+	// __soaap_rpc_recv("<privileged>", MONITOR_ANS_MODULI, NULL);
 
 	success = buffer_get_char(&m);
 	if (success == 0)
@@ -706,7 +707,7 @@ mm_terminate(void)
 	Buffer m;
 
 	buffer_init(&m);
-	__soaap_rpc_send_with_params("monitor", MONITOR_REQ_TERM, &m);
+	__soaap_rpc_send_with_params("<privileged>", MONITOR_REQ_TERM, &m);
 	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_TERM, &m);
 	buffer_free(&m);
 }
@@ -721,7 +722,7 @@ mm_ssh1_session_key(BIGNUM *num)
 	buffer_init(&m);
 	buffer_put_bignum2(&m, num);
 	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_SESSKEY, &m);
-	__soaap_rpc_send_with_params("monitor", MONITOR_REQ_SESSKEY, &m);
+	__soaap_rpc_send_with_params("<privileged>", MONITOR_REQ_SESSKEY, &m);
 
 	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_SESSKEY, &m);
 
@@ -758,10 +759,10 @@ mm_bsdauth_query(void *ctx, char **name, char **infotxt,
 
 	buffer_init(&m);
 	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_BSDAUTHQUERY, &m);
-	__soaap_rpc_send_with_params("monitor", MONITOR_REQ_BSDAUTHQUERY, &m);
+	__soaap_rpc_send_with_params("<privileged>", MONITOR_REQ_BSDAUTHQUERY, &m);
 	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_BSDAUTHQUERY,
 	    &m);
-	//__soaap_rpc_recv("monitor", MONITOR_ANS_BSDAUTHQUERY, NULL);
+	//__soaap_rpc_recv("<privileged>", MONITOR_ANS_BSDAUTHQUERY, NULL);
 	success = buffer_get_int(&m);
 	if (success == 0) {
 		debug3("%s: no challenge", __func__);

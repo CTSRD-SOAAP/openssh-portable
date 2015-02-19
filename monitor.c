@@ -316,7 +316,7 @@ monitor_permit(struct mon_table *ent, enum monitor_reqtype type, int permit)
 	}
 }
 
-__soaap_sandbox_persistent("monitor")
+////__soaap_sandbox_persistent("monitor")
 static void
 monitor_permit_authentications(int permit)
 {
@@ -331,7 +331,7 @@ monitor_permit_authentications(int permit)
 	}
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 void
 monitor_child_preauth(Authctxt *_authctxt, struct monitor *pmonitor)
 {
@@ -491,7 +491,7 @@ monitor_child_handler(int sig)
 	kill(monitor_child_pid, sig);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 void
 monitor_child_postauth(struct monitor *pmonitor)
 {
@@ -570,7 +570,7 @@ monitor_child_postauth(struct monitor *pmonitor)
 	}
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 void
 monitor_sync(struct monitor *pmonitor)
 {
@@ -601,7 +601,7 @@ mm_zfree(struct mm_master *mm, void *address)
 	mm_free(mm, address);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 static int
 monitor_read_log(struct monitor *pmonitor)
 {
@@ -649,7 +649,7 @@ monitor_read_log(struct monitor *pmonitor)
 	return 0;
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 monitor_read(struct monitor *pmonitor, struct mon_table *ent,
     struct mon_table **pent)
@@ -747,7 +747,7 @@ monitor_reset_key_state(void)
 }
 
 #ifdef WITH_OPENSSL
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_moduli(int sock, Buffer *m)
 {
@@ -779,12 +779,12 @@ mm_answer_moduli(int sock, Buffer *m)
 
 		DH_free(dh);
 	}
-	__soaap_rpc_send("preauth,postauth", MONITOR_ANS_MODULI);
+	__soaap_rpc_send_with_params("preauth", MONITOR_ANS_MODULI, m);
 	mm_request_send(sock, MONITOR_ANS_MODULI, m);
 	return (0);
 }
 #endif
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_sign(int sock, Buffer *m)
 {
@@ -848,7 +848,7 @@ mm_answer_sign(int sock, Buffer *m)
 }
 
 /* Retrieves the password entry and also checks if the user is permitted */
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pwnamallow(int sock, Buffer *m)
 {
@@ -940,7 +940,7 @@ mm_answer_pwnamallow(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int mm_answer_auth2_read_banner(int sock, Buffer *m)
 {
 	char *banner;
@@ -954,7 +954,7 @@ int mm_answer_auth2_read_banner(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_authserv(int sock, Buffer *m)
 {
@@ -973,7 +973,7 @@ mm_answer_authserv(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_authpassword(int sock, Buffer *m)
 {
@@ -1007,7 +1007,7 @@ mm_answer_authpassword(int sock, Buffer *m)
 
 #ifdef BSD_AUTH
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_bsdauthquery(int sock, Buffer *m)
 {
@@ -1038,7 +1038,7 @@ mm_answer_bsdauthquery(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_bsdauthrespond(int sock, Buffer *m)
 {
@@ -1072,7 +1072,7 @@ mm_answer_bsdauthrespond(int sock, Buffer *m)
 #endif
 
 #ifdef SKEY
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_skeyquery(int sock, Buffer *m)
 {
@@ -1094,7 +1094,7 @@ mm_answer_skeyquery(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_skeyrespond(int sock, Buffer *m)
 {
@@ -1123,7 +1123,7 @@ mm_answer_skeyrespond(int sock, Buffer *m)
 #endif
 
 #ifdef USE_PAM
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pam_start(int sock, Buffer *m)
 {
@@ -1137,7 +1137,7 @@ mm_answer_pam_start(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pam_account(int sock, Buffer *m)
 {
@@ -1159,7 +1159,7 @@ mm_answer_pam_account(int sock, Buffer *m)
 static void *sshpam_ctxt, *sshpam_authok;
 extern KbdintDevice sshpam_device;
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pam_init_ctx(int sock, Buffer *m)
 {
@@ -1179,7 +1179,7 @@ mm_answer_pam_init_ctx(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pam_query(int sock, Buffer *m)
 {
@@ -1214,7 +1214,7 @@ mm_answer_pam_query(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pam_respond(int sock, Buffer *m)
 {
@@ -1246,7 +1246,7 @@ mm_answer_pam_respond(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pam_free_ctx(int sock, Buffer *m)
 {
@@ -1261,7 +1261,7 @@ mm_answer_pam_free_ctx(int sock, Buffer *m)
 }
 #endif
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_keyallowed(int sock, Buffer *m)
 {
@@ -1370,7 +1370,7 @@ mm_answer_keyallowed(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 static int
 monitor_valid_userblob(u_char *data, u_int datalen)
 {
@@ -1431,7 +1431,7 @@ monitor_valid_userblob(u_char *data, u_int datalen)
 	return (fail == 0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 static int
 monitor_valid_hostbasedblob(u_char *data, u_int datalen, char *cuser,
     char *chost)
@@ -1492,7 +1492,7 @@ monitor_valid_hostbasedblob(u_char *data, u_int datalen, char *cuser,
 	return (fail == 0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_keyverify(int sock, Buffer *m)
 {
@@ -1554,7 +1554,7 @@ mm_answer_keyverify(int sock, Buffer *m)
 	return (verified == 1);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 static void
 mm_record_login(Session *s, struct passwd *pw)
 {
@@ -1580,7 +1580,7 @@ mm_record_login(Session *s, struct passwd *pw)
 	    (struct sockaddr *)&from, fromlen);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 static void
 mm_session_close(Session *s)
 {
@@ -1592,7 +1592,7 @@ mm_session_close(Session *s)
 	session_unused(s->self);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pty(int sock, Buffer *m)
 {
@@ -1660,7 +1660,7 @@ mm_answer_pty(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_pty_cleanup(int sock, Buffer *m)
 {
@@ -1708,7 +1708,7 @@ mm_answer_sesskey(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_sessid(int sock, Buffer *m)
 {
@@ -1727,7 +1727,7 @@ mm_answer_sessid(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_rsa_keyallowed(int sock, Buffer *m)
 {
@@ -1775,7 +1775,7 @@ mm_answer_rsa_keyallowed(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_rsa_challenge(int sock, Buffer *m)
 {
@@ -1814,7 +1814,7 @@ mm_answer_rsa_challenge(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_rsa_response(int sock, Buffer *m)
 {
@@ -1861,7 +1861,7 @@ mm_answer_rsa_response(int sock, Buffer *m)
 }
 #endif
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_term(int sock, Buffer *req)
 {
@@ -1890,7 +1890,7 @@ mm_answer_term(int sock, Buffer *req)
 
 #ifdef SSH_AUDIT_EVENTS
 /* Report that an audit event occurred */
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_audit_event(int socket, Buffer *m)
 {
@@ -1916,7 +1916,7 @@ mm_answer_audit_event(int socket, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_audit_command(int socket, Buffer *m)
 {
@@ -1932,7 +1932,7 @@ mm_answer_audit_command(int socket, Buffer *m)
 }
 #endif /* SSH_AUDIT_EVENTS */
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 void
 monitor_apply_keystate(struct monitor *pmonitor)
 {
@@ -1975,7 +1975,7 @@ monitor_apply_keystate(struct monitor *pmonitor)
 
 /* This function requries careful sanity checking */
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 void
 mm_get_keystate(struct monitor *pmonitor)
 {
@@ -1996,7 +1996,7 @@ mm_get_keystate(struct monitor *pmonitor)
 		fatal("fcntl(%d, F_SETFD)", x); \
 } while (0)
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 static void
 monitor_openfds(struct monitor *mon, int do_logfds)
 {
@@ -2022,7 +2022,7 @@ monitor_openfds(struct monitor *mon, int do_logfds)
 
 #define MM_MEMSIZE	65536
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 struct monitor *
 monitor_init(void)
 {
@@ -2047,7 +2047,7 @@ monitor_init(void)
 	return mon;
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 void
 monitor_reinit(struct monitor *mon)
 {
@@ -2055,7 +2055,7 @@ monitor_reinit(struct monitor *mon)
 }
 
 #ifdef GSSAPI
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_gss_setup_ctx(int sock, Buffer *m)
 {
@@ -2081,7 +2081,7 @@ mm_answer_gss_setup_ctx(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_gss_accept_ctx(int sock, Buffer *m)
 {
@@ -2112,7 +2112,7 @@ mm_answer_gss_accept_ctx(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_gss_checkmic(int sock, Buffer *m)
 {
@@ -2141,7 +2141,7 @@ mm_answer_gss_checkmic(int sock, Buffer *m)
 	return (0);
 }
 
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int
 mm_answer_gss_userok(int sock, Buffer *m)
 {

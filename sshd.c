@@ -652,7 +652,7 @@ privsep_preauth_child(void)
 #endif
 }
 
-__soaap_sandbox_persistent("monitor")
+// __soaap_sandbox_persistent("monitor")
 static int
 privsep_preauth(Authctxt *authctxt)
 {
@@ -728,7 +728,7 @@ privsep_preauth(Authctxt *authctxt)
 	}
 }
 
-__soaap_sandbox_persistent("monitor")
+// __soaap_sandbox_persistent("monitor")
 static void
 privsep_postauth(Authctxt *authctxt)
 {
@@ -755,7 +755,7 @@ privsep_postauth(Authctxt *authctxt)
 		buffer_clear(&loginmsg);
 		monitor_child_postauth(pmonitor);
 		/* NEVERREACHED */
-		__soaap_sandboxed_region_end("monitor")
+		// __soaap_sandboxed_region_end("monitor")
 		exit(0);
 	}
 
@@ -2137,7 +2137,7 @@ main(int ac, char **av)
 	signal(SIGALRM, grace_alarm_handler);
 	if (!debug_flag)
 		alarm(options.login_grace_time);
-	__soaap_sandboxed_region_start("monitor");
+	//__soaap_sandboxed_region_start("monitor");
 
 
 	sshd_exchange_identification(sock_in, sock_out);
@@ -2268,7 +2268,7 @@ main(int ac, char **av)
 		mm_terminate();
 
 	__soaap_sandboxed_region_end("postauth");
-	__soaap_sandboxed_region_end("monitor");
+	// __soaap_sandboxed_region_end("monitor");
 	exit(0);
 }
 

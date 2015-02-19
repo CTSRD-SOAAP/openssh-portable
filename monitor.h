@@ -81,21 +81,21 @@ struct monitor {
 	pid_t			 m_pid;
 };
 
-__soaap_sandbox_persistent("monitor")
+////__soaap_sandbox_persistent("monitor")
 struct monitor *monitor_init(void);
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 void monitor_reinit(struct monitor *);
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 void monitor_sync(struct monitor *);
 
 struct Authctxt;
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 void monitor_child_preauth(struct Authctxt *, struct monitor *);
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 void monitor_child_postauth(struct monitor *);
 
 struct mon_table;
-__soaap_sandbox_persistent("monitor")
+//__soaap_sandbox_persistent("monitor")
 int monitor_read(struct monitor*, struct mon_table *, struct mon_table **);
 
 /* Prototypes for request sending and receiving */
