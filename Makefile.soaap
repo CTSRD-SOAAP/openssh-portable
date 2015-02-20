@@ -35,7 +35,11 @@ all: sshd_executable.bc
 soaap: sshd_executable.bc
 	$(SOAAP) -o sshd.soaap $^
 soaap-linux: sshd_executable.bc
-	$(SOAAP) -o sshd.soaap $^ -soaap-list-fp-calls -soaap-list-fp-targets -soaap-infer-fp-targets -soaap-list-sandboxed-funcs -soaap-sandbox-platform=seccomp
+	$(SOAAP) -o sshd.soaap $^ -soaap-sandbox-platform=seccomp
+
+soaap-all: sshd_executable.bc
+	$(SOAAP) -o sshd.soaap $^ -soaap-infer-fp-targets -soaap-list-fp-calls -soaap-list-fp-targets -soaap-list-sandboxed-funcs -soaap-sandbox-platform=capsicum
+
 soaap-extra: sshd_executable.bc
 	$(SOAAP) -soaap-infer-fp-targets -soaap-dump-rpc-graph -soaap-list-fp-calls -soaap-list-fp-targets -o sshd.soaap $^
 
