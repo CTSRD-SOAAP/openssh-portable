@@ -85,6 +85,8 @@ RCSID("$OpenBSD: sshd.c,v 1.242 2002/05/15 15:47:49 mouring Exp $");
 #include "monitor_wrap.h"
 #include "monitor_fdpass.h"
 
+#include <soaap.h>
+
 #ifdef LIBWRAP
 #include <tcpd.h>
 #include <syslog.h>
@@ -590,7 +592,6 @@ privsep_preauth(void)
 		return (authctxt);
 	} else {
 		/* child */
-
 		close(pmonitor->m_sendfd);
 
 		/* Demote the child */
@@ -637,7 +638,6 @@ privsep_postauth(Authctxt *authctxt)
 		/* NEVERREACHED */
 		exit(0);
 	}
-
 	close(pmonitor->m_sendfd);
 
 	/* Demote the private keys to public keys. */
@@ -645,7 +645,6 @@ privsep_postauth(Authctxt *authctxt)
 
 	/* Drop privileges */
 	do_setusercontext(authctxt->pw);
-
 	/* It is safe now to apply the key state */
 	monitor_apply_keystate(pmonitor);
 }
@@ -1445,6 +1444,7 @@ main(int ac, char **av)
 		if ((authctxt = privsep_preauth()) != NULL)
 			goto authenticated;
 
+	__soaap_sandboxed_region_start("preauth");
 	/* perform the key exchange */
 	/* authenticate user and start session */
 	if (compat20) {
@@ -1462,6 +1462,7 @@ main(int ac, char **av)
 		mm_send_keystate(pmonitor);
 		exit(0);
 	}
+	__soaap_sandboxed_region_end("preauth");
 
  authenticated:
 	/*
@@ -1474,6 +1475,7 @@ main(int ac, char **av)
 		if (!compat20)
 			destroy_sensitive_data();
 	}
+	__soaap_sandboxed_region_start("postauth");
 
 	/* Perform session preparation. */
 	do_authenticated(authctxt);
@@ -1490,6 +1492,7 @@ main(int ac, char **av)
 	if (use_privsep)
 		mm_terminate();
 
+	__soaap_sandboxed_region_end("postauth");
 	exit(0);
 }
 
