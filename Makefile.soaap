@@ -1,0 +1,56 @@
+#TODO: check 7a2073c50b92c053594d48a651ebafae052a71ed (initial privsep)
+
+
+SOAAP_ROOT=$(CURDIR)/..
+DEFINES=-DHAVE_CONFIG_H -D_GNU_SOURCE
+# for some reason we need to add /usr/include and the dir with stddef.h here
+INCLUDES=-isystem $(SOAAP_ROOT)/llvm/build/lib/clang/3.7.0/include/ -isystem /usr/include -I $(SOAAP_ROOT)/soaap/include/ -I .
+WARNINGS=-Wundef -Wno-conversion
+CFLAGS=-cc1 -emit-llvm -g
+#-fcolor-diagnostics
+CLANG=$(SOAAP_ROOT)/llvm/build/bin/clang
+LLVM_LINK=$(SOAAP_ROOT)/llvm/build/bin/llvm-link
+SOAAP=$(SOAAP_ROOT)/soaap/build/bin/soaap
+
+.PHONY: all clean soaap
+
+LIBSSH_IR_FILES=atomicio.ll authfd.ll authfile.ll bufaux.ll buffer.ll canohost.ll channels.ll cipher.ll compat.ll compress.ll crc32.ll deattack.ll dh.ll dispatch.ll fatal.ll mac.ll hostfile.ll key.ll kex.ll kexdh.ll kexgex.ll log.ll match.ll misc.ll mpaux.ll nchan.ll packet.ll radix.ll rijndael.ll entropy.ll readpass.ll rsa.ll scard.ll scard-opensc.ll ssh-dss.ll ssh-rsa.ll tildexpand.ll ttymodes.ll uidswap.ll uuencode.ll xmalloc.ll monitor_wrap.ll monitor_fdpass.ll
+
+SSHD_IR_FILES=sshd.ll auth.ll auth1.ll auth2.ll auth-chall.ll auth2-chall.ll auth-rhosts.ll auth-options.ll auth-krb4.ll auth-krb5.ll auth-pam.ll auth2-pam.ll auth-passwd.ll auth-rsa.ll auth-rh-rsa.ll auth-sia.ll sshpty.ll sshlogin.ll loginrec.ll servconf.ll serverloop.ll md5crypt.ll session.ll groupaccess.ll auth-skey.ll auth-bsdauth.ll monitor_mm.ll monitor.ll
+
+OPENBSD_COMPAT_IR_FILES=openbsd-compat/base64.ll openbsd-compat/bindresvport.ll openbsd-compat/daemon.ll openbsd-compat/dirname.ll openbsd-compat/getcwd.ll openbsd-compat/getgrouplist.ll openbsd-compat/getopt.ll openbsd-compat/glob.ll openbsd-compat/inet_aton.ll openbsd-compat/inet_ntoa.ll openbsd-compat/inet_ntop.ll openbsd-compat/mktemp.ll openbsd-compat/readpassphrase.ll openbsd-compat/realpath.ll openbsd-compat/rresvport.ll openbsd-compat/setenv.ll openbsd-compat/setproctitle.ll openbsd-compat/sigact.ll openbsd-compat/strlcat.ll openbsd-compat/strlcpy.ll openbsd-compat/strmode.ll openbsd-compat/strsep.ll openbsd-compat/bsd-arc4random.ll openbsd-compat/bsd-cray.ll openbsd-compat/bsd-cygwin_util.ll openbsd-compat/bsd-misc.ll openbsd-compat/bsd-nextstep.ll openbsd-compat/bsd-snprintf.ll openbsd-compat/bsd-waitpid.ll openbsd-compat/fake-getaddrinfo.ll openbsd-compat/fake-getnameinfo.ll
+
+# this is the new version:
+#SSHD_IR_FILES=sshd.ll auth-rhosts.ll auth-passwd.ll auth-rsa.ll auth-rh-rsa.ll audit.ll audit-bsm.ll audit-linux.ll platform.ll sshpty.ll sshlogin.ll servconf.ll serverloop.ll auth.ll auth1.ll auth2.ll auth-options.ll session.ll auth-chall.ll auth2-chall.ll groupaccess.ll auth-skey.ll auth-bsdauth.ll auth2-hostbased.ll auth2-kbdint.ll auth2-none.ll auth2-passwd.ll auth2-pubkey.ll monitor_mm.ll monitor.ll monitor_wrap.ll auth-krb5.ll auth2-gss.ll gss-serv.ll gss-serv-krb5.ll loginrec.ll auth-pam.ll auth-shadow.ll auth-sia.ll md5crypt.ll sftp-server.ll sftp-common.ll roaming_common.ll roaming_serv.ll sandbox-null.ll sandbox-rlimit.ll sandbox-systrace.ll sandbox-darwin.ll sandbox-seccomp-filter.ll sandbox-capsicum.ll
+#
+#LIBSSH_IR_FILES=ssherr.ll sshbuf.ll sshkey.ll sshbuf-getput-basic.ll sshbuf-misc.ll sshbuf-getput-crypto.ll krl.ll bitmap.ll authfd.ll authfile.ll bufaux.ll bufbn.ll bufec.ll buffer.ll canohost.ll channels.ll cipher.ll cipher-aes.ll cipher-aesctr.ll cipher-bf1.ll cipher-ctr.ll cipher-3des1.ll compat.ll crc32.ll deattack.ll fatal.ll hostfile.ll log.ll match.ll md-sha256.ll moduli.ll nchan.ll packet.ll opacket.ll readpass.ll rsa.ll ttymodes.ll xmalloc.ll addrmatch.ll atomicio.ll key.ll dispatch.ll mac.ll uidswap.ll uuencode.ll misc.ll monitor_fdpass.ll rijndael.ll ssh-dss.ll ssh-ecdsa.ll ssh-rsa.ll dh.ll msg.ll progressmeter.ll dns.ll entropy.ll gss-genr.ll umac.ll ssh-pkcs11.ll smult_curve25519_ref.ll poly1305.ll chacha.ll cipher-chachapoly.ll ssh-ed25519.ll digest-openssl.ll digest-libc.ll hmac.ll sc25519.ll ge25519.ll fe25519.ll ed25519.ll verify.ll hash.ll blocks.ll kex.ll kexdh.ll kexgex.ll kexecdh.ll kexc25519.ll kexdhc.ll kexgexc.ll kexecdhc.ll kexc25519c.ll kexdhs.ll kexgexs.ll kexecdhs.ll kexc25519s.ll umac128.ll
+#
+#OPENBSD_COMPAT_IR_FILES=openbsd-compat/base64.ll openbsd-compat/basename.ll openbsd-compat/bindresvport.ll openbsd-compat/daemon.ll openbsd-compat/dirname.ll openbsd-compat/fmt_scaled.ll openbsd-compat/getcwd.ll openbsd-compat/getgrouplist.ll openbsd-compat/getopt_long.ll openbsd-compat/getrrsetbyname.ll openbsd-compat/glob.ll openbsd-compat/inet_aton.ll openbsd-compat/inet_ntoa.ll openbsd-compat/inet_ntop.ll openbsd-compat/mktemp.ll openbsd-compat/pwcache.ll openbsd-compat/readpassphrase.ll openbsd-compat/reallocarray.ll openbsd-compat/realpath.ll openbsd-compat/rresvport.ll openbsd-compat/setenv.ll openbsd-compat/setproctitle.ll openbsd-compat/sha1.ll openbsd-compat/sha2.ll openbsd-compat/rmd160.ll openbsd-compat/md5.ll openbsd-compat/sigact.ll openbsd-compat/strlcat.ll openbsd-compat/strlcpy.ll openbsd-compat/strmode.ll openbsd-compat/strnlen.ll openbsd-compat/strptime.ll openbsd-compat/strsep.ll openbsd-compat/strtonum.ll openbsd-compat/strtoll.ll openbsd-compat/strtoul.ll openbsd-compat/strtoull.ll openbsd-compat/timingsafe_bcmp.ll openbsd-compat/vis.ll openbsd-compat/blowfish.ll openbsd-compat/bcrypt_pbkdf.ll openbsd-compat/explicit_bzero.ll openbsd-compat/arc4random.ll openbsd-compat/bsd-asprintf.ll openbsd-compat/bsd-closefrom.ll openbsd-compat/bsd-cray.ll openbsd-compat/bsd-cygwin_util.ll openbsd-compat/getrrsetbyname-ldns.ll openbsd-compat/bsd-misc.ll openbsd-compat/bsd-nextstep.ll openbsd-compat/bsd-openpty.ll openbsd-compat/bsd-poll.ll openbsd-compat/bsd-setres_id.ll openbsd-compat/bsd-snprintf.ll openbsd-compat/bsd-statvfs.ll openbsd-compat/bsd-waitpid.ll openbsd-compat/fake-rfc2553.ll openbsd-compat/openssl-compat.ll openbsd-compat/xmmap.ll openbsd-compat/xcrypt.ll openbsd-compat/kludge-fd_set.ll
+
+#TODO: openbsd-compat/bsd-getpeereid.ll won't compile due to forward declaration of struct ucred
+
+all: sshd_executable.bc
+	@echo
+
+soaap: sshd_executable.bc
+	$(SOAAP) -o sshd.soaap $^
+soaap-linux: sshd_executable.bc
+	$(SOAAP) -o sshd.soaap $^ -soaap-list-fp-calls -soaap-list-fp-targets -soaap-infer-fp-targets -soaap-list-sandboxed-funcs -soaap-sandbox-platform=seccomp
+soaap-extra: sshd_executable.bc
+	$(SOAAP) -soaap-infer-fp-targets -soaap-dump-rpc-graph -soaap-list-fp-calls -soaap-list-fp-targets -o sshd.soaap $^
+
+clean:
+	rm -f *.ll *.bc openbsd-compat/*.ll sshd.soaap
+
+sshd_executable.bc: $(SSHD_IR_FILES) $(LIBSSH_IR_FILES) $(OPENBSD_COMPAT_IR_FILES)
+	$(LLVM_LINK) -o $@ $^
+
+%.ll: %.c
+	$(CLANG) $(CFLAGS) $(INCLUDES) $(DEFINES) $(WARNINGS) -o $@ $<
+
+$(OPENBSD_COMPAT_IR_FILES): %.ll: %.c
+	$(CLANG) $(CFLAGS) -I openbsd-compat $(INCLUDES) $(DEFINES) $(WARNINGS) -o $@ $<
+
+# special case target for umac128
+umac128.ll: umac.c
+	$(CLANG) $(CFLAGS) $(DEFINES) $(INCLUDES) -o $@ $< -DUMAC_OUTPUT_LEN=16 -Dumac_new=umac128_new -Dumac_update=umac128_update -Dumac_final=umac128_final -Dumac_delete=umac128_delete
