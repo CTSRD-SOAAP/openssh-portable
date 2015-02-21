@@ -12,7 +12,7 @@ CLANG=$(SOAAP_ROOT)/llvm/build/bin/clang
 LLVM_LINK=$(SOAAP_ROOT)/llvm/build/bin/llvm-link
 SOAAP=$(SOAAP_ROOT)/soaap/build/bin/soaap
 
-.PHONY: all clean soaap
+.PHONY: all clean soaap soaap-linux soaap-all
 
 
 
@@ -37,13 +37,13 @@ all: sshd_executable.bc
 soaap: sshd_executable.bc
 	$(SOAAP) -o sshd.soaap $^
 soaap-linux: sshd_executable.bc
-	$(SOAAP) -o sshd.soaap $^ -soaap-sandbox-platform=seccomp
+	$(SOAAP) -o sshd.soaap $^ -soaap-sandbox-platform=seccomp -soaap-syscall-traces
 
 soaap-all: sshd_executable.bc
-	$(SOAAP) -o sshd.soaap $^ -soaap-infer-fp-targets -soaap-list-fp-calls -soaap-list-fp-targets -soaap-list-sandboxed-funcs -soaap-sandbox-platform=capsicum
+	$(SOAAP) -o sshd.soaap $^ -soaap-infer-fp-targets -soaap-list-fp-calls -soaap-list-fp-targets -soaap-list-sandboxed-funcs -soaap-sandbox-platform=capsicum -soaap-dump-rpc-graph -soaap-syscall-traces
 
-soaap-extra: sshd_executable.bc
-	$(SOAAP) -soaap-infer-fp-targets -soaap-dump-rpc-graph -soaap-list-fp-calls -soaap-list-fp-targets -o sshd.soaap $^
+soaap-json: sshd_executable.bc
+	$(SOAAP) -o sshd.soaap $^ -soaap-infer-fp-targets -soaap-list-fp-calls -soaap-list-fp-targets -soaap-list-sandboxed-funcs -soaap-sandbox-platform=capsicum -soaap-dump-rpc-graph -soaap-report-output-formats=json -soaap-syscall-traces
 
 clean:
 	rm -f *.ll *.bc openbsd-compat/*.ll sshd.soaap
