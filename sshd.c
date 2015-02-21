@@ -205,7 +205,9 @@ int startup_pipe;		/* in child */
 
 /* variables used for privilege separation */
 extern struct monitor *pmonitor;
-extern int use_privsep;
+// For our SOAAP analysis we want use_privsep to be always true:
+// extern int use_privsep;
+#define use_privsep 1
 
 /* Prototypes for various functions defined later in this file. */
 void destroy_sensitive_data(void);
@@ -613,7 +615,8 @@ privsep_postauth(Authctxt *authctxt)
 	if (authctxt->pw->pw_uid == 0 || options.use_login) {
 		/* File descriptor passing is broken or root login */
 		monitor_apply_keystate(pmonitor);
-		use_privsep = 0;
+		// For our SOAAP analysis we want use_privsep to be always true:
+		// use_privsep = 0;
 		return;
 	}
 
