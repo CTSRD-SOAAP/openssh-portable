@@ -45,7 +45,8 @@ RCSID("$OpenBSD: kex.c,v 1.50 2002/05/15 15:47:49 mouring Exp $");
 #define KEX_COOKIE_LEN	16
 
 /* Use privilege separation for sshd */
-int use_privsep;
+// For our SOAAP analysis we want use_privsep to be always true:
+// int use_privsep;
 struct monitor *pmonitor;
 
 
