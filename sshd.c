@@ -579,17 +579,17 @@ privsep_preauth(void)
 		debug2("Network child is on pid %d", pid);
 
 		close(pmonitor->m_recvfd);
-		authctxt = monitor_child_preauth(pmonitor);
+		authctxt = monitor_child_preauth(pmonitor); // wait for authentication
 		close(pmonitor->m_sendfd);
 
 		/* Sync memory */
-		monitor_sync(pmonitor);
+		monitor_sync(pmonitor); // sync state
 
 		/* Wait for the child's exit status */
 		while (waitpid(pid, &status, 0) < 0)
 			if (errno != EINTR)
 				break;
-		return (authctxt);
+		return (authctxt); // now authenticated
 	} else {
 		/* child */
 		close(pmonitor->m_sendfd);
@@ -1442,8 +1442,9 @@ main(int ac, char **av)
 
 	if (use_privsep)
 		if ((authctxt = privsep_preauth()) != NULL)
-			goto authenticated;
+			goto authenticated; // parent (<privileged>) only returns once authenticated
 
+	// child process
 	__soaap_sandboxed_region_start("preauth");
 	/* perform the key exchange */
 	/* authenticate user and start session */
