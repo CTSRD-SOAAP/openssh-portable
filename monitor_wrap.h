@@ -31,7 +31,10 @@
 #include "buffer.h"
 
 extern int use_privsep;
-#define PRIVSEP(x)	(use_privsep ? mm_##x : x)
+// #define PRIVSEP(x)	(use_privsep ? mm_##x : x)
+
+// always call the mm_functions
+#define PRIVSEP(x)	mm_##x
 
 enum mm_keytype {MM_NOKEY, MM_HOSTKEY, MM_USERKEY, MM_RSAHOSTKEY, MM_RSAUSERKEY};
 
