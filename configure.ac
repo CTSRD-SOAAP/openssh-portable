@@ -167,8 +167,8 @@ mips-sony-bsd|mips-sony-newsos4)
 	need_dash_r=1
 	;;
 *-*-freebsd*)
-	check_for_libcrypt_later=1
 	LIBS="$LIBS -lutil"
+	check_for_libcrypt_later=1
 	;;
 *-next-*)
 	conf_lastlog_location="/usr/adm/lastlog"

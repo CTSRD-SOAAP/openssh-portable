@@ -196,7 +196,7 @@ struct mon_table mon_dispatch_proto15[] = {
     {MONITOR_REQ_SKEYRESPOND, MON_AUTH, mm_answer_skeyrespond},
 #endif
 #ifdef USE_PAM
-    {MONITOR_REQ_PAM_START, MON_ONCE, mm_answer_pam_start},
+    {MONITOR_REQ_PAM_START, MON_ONCE, mm_answer_pam_start}, // WTF: this is listed twice
 #endif
     {0, 0, NULL}
 };
@@ -264,6 +264,37 @@ monitor_child_preauth(struct monitor *pmonitor)
 	/* The first few requests do not require asynchronous access */
 	while (!authenticated) {
 		authenticated = monitor_read(pmonitor, mon_dispatch, &ent);
+
+		// here we get all the RPC messages
+		// obviously some of them are only allowed in certain states, but for now listing all possibilities here seems to be a good idea
+		__soaap_rpc_recv("preauth", MONITOR_REQ_MODULI, mm_answer_moduli);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_SIGN, mm_answer_sign);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_PWNAM, mm_answer_pwnamallow);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_AUTHSERV, mm_answer_authserv);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_AUTH2_READ_BANNER, mm_answer_auth2_read_banner);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_AUTHPASSWORD, mm_answer_authpassword);
+#ifdef USE_PAM
+		__soaap_rpc_recv("preauth", MONITOR_REQ_PAM_START, mm_answer_pam_start);
+#endif
+#ifdef BSD_AUTH
+		__soaap_rpc_recv("preauth", MONITOR_REQ_BSDAUTHQUERY, mm_answer_bsdauthquery);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_BSDAUTHRESPOND, mm_answer_bsdauthrespond);
+#endif
+#ifdef SKEY
+		__soaap_rpc_recv("preauth", MONITOR_REQ_SKEYQUERY, mm_answer_skeyquery);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_SKEYRESPOND, mm_answer_skeyrespond);
+#endif
+
+		__soaap_rpc_recv("preauth", MONITOR_REQ_KEYALLOWED, mm_answer_keyallowed);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_KEYVERIFY, mm_answer_keyverify);
+
+		// now the ones from the proto15 table that weren't already listed:
+		__soaap_rpc_recv("preauth", MONITOR_REQ_SESSKEY, mm_answer_sesskey);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_SESSID, mm_answer_sessid);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_RSAKEYALLOWED, mm_answer_rsa_keyallowed);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_RSACHALLENGE, mm_answer_rsa_challenge);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_RSARESPONSE, mm_answer_rsa_response);
+
 		if (authenticated) {
 			if (!(ent->flags & MON_AUTHDECIDE))
 				fatal("%s: unexpected authentication from %d",
@@ -316,8 +347,17 @@ monitor_child_postauth(struct monitor *pmonitor)
 		monitor_permit(mon_dispatch, MONITOR_REQ_PTYCLEANUP, 1);
 	}
 
-	for (;;)
+	for (;;) {
 		monitor_read(pmonitor, mon_dispatch, NULL);
+
+	__soaap_rpc_recv("postauth", MONITOR_REQ_MODULI, mm_answer_moduli); // compat20 only
+	__soaap_rpc_recv("postauth", MONITOR_REQ_SIGN, mm_answer_sign); // compat20 only
+	// common to both:
+	__soaap_rpc_recv("postauth", MONITOR_REQ_PTY, mm_answer_pty);
+	__soaap_rpc_recv("postauth", MONITOR_REQ_PTYCLEANUP, mm_answer_pty_cleanup);
+	// this RPC call causes the monitor process to exit (and hopefully the child as well)
+	__soaap_rpc_recv("postauth", MONITOR_REQ_TERM, mm_answer_term);
+	}
 }
 
 void
@@ -433,9 +473,13 @@ mm_answer_moduli(int socket, Buffer *m)
 
 		DH_free(dh);
 	}
-	mm_request_send(socket, MONITOR_ANS_MODULI, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_MODULI, m);
+	__soaap_rpc_send_with_params("postauth", MONITOR_ANS_MODULI, m);
 	return (0);
 }
+
+void noop_fp_target() {}
+
 
 int
 mm_answer_sign(int socket, Buffer *m)
@@ -467,7 +511,8 @@ mm_answer_sign(int socket, Buffer *m)
 	xfree(p);
 	xfree(signature);
 
-	mm_request_send(socket, MONITOR_ANS_SIGN, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_SIGN, m);
+	__soaap_rpc_send_with_params("postauth", MONITOR_ANS_SIGN, m);
 
 	/* Turn on permissions for getpwnam */
 	monitor_permit(mon_dispatch, MONITOR_REQ_PWNAM, 1);
@@ -521,7 +566,7 @@ mm_answer_pwnamallow(int socket, Buffer *m)
 
  out:
 	debug3("%s: sending MONITOR_ANS_PWNAM: %d", __FUNCTION__, allowed);
-	mm_request_send(socket, MONITOR_ANS_PWNAM, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_PWNAM, m);
 
 	/* For SSHv1 allow authentication now */
 	if (!compat20)
@@ -546,7 +591,7 @@ int mm_answer_auth2_read_banner(int socket, Buffer *m)
 	buffer_clear(m);
 	banner = auth2_read_banner();
 	buffer_put_cstring(m, banner != NULL ? banner : "");
-	mm_request_send(socket, MONITOR_ANS_AUTH2_READ_BANNER, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_AUTH2_READ_BANNER, m);
 
 	if (banner != NULL)
 		free(banner);
@@ -589,7 +634,7 @@ mm_answer_authpassword(int socket, Buffer *m)
 	buffer_put_int(m, authenticated);
 
 	debug3("%s: sending result %d", __FUNCTION__, authenticated);
-	mm_request_send(socket, MONITOR_ANS_AUTHPASSWORD, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_AUTHPASSWORD, m);
 
 	call_count++;
 	if (plen == 0 && call_count == 1)
@@ -651,7 +696,7 @@ mm_answer_bsdauthrespond(int socket, Buffer *m)
 	buffer_put_int(m, authok);
 
 	debug3("%s: sending authenticated: %d", __FUNCTION__, authok);
-	mm_request_send(socket, MONITOR_ANS_BSDAUTHRESPOND, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_BSDAUTHRESPOND, m);
 
 	auth_method = "bsdauth";
 
@@ -675,7 +720,7 @@ mm_answer_skeyquery(int socket, Buffer *m)
 		buffer_put_cstring(m, challenge);
 
 	debug3("%s: sending challenge res: %d", __FUNCTION__, res);
-	mm_request_send(socket, MONITOR_ANS_SKEYQUERY, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_SKEYQUERY, m);
 
 	return (0);
 }
@@ -698,7 +743,7 @@ mm_answer_skeyrespond(int socket, Buffer *m)
 	buffer_put_int(m, authok);
 
 	debug3("%s: sending authenticated: %d", __FUNCTION__, authok);
-	mm_request_send(socket, MONITOR_ANS_SKEYRESPOND, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_SKEYRESPOND, m);
 
 	auth_method = "skey";
 
@@ -798,7 +843,7 @@ mm_answer_keyallowed(int socket, Buffer *m)
 
 	mm_append_debug(m);
 
-	mm_request_send(socket, MONITOR_ANS_KEYALLOWED, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_KEYALLOWED, m);
 
 	if (type == MM_RSAHOSTKEY)
 		monitor_permit(mon_dispatch, MONITOR_REQ_RSACHALLENGE, allowed);
@@ -956,7 +1001,7 @@ mm_answer_keyverify(int socket, Buffer *m)
 
 	buffer_clear(m);
 	buffer_put_int(m, verified);
-	mm_request_send(socket, MONITOR_ANS_KEYVERIFY, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_KEYVERIFY, m);
 
 	auth_method = "publickey";
 
@@ -1024,8 +1069,9 @@ mm_answer_pty(int socket, Buffer *m)
 
 	buffer_put_int(m, 1);
 	buffer_put_cstring(m, s->tty);
-	mm_request_send(socket, MONITOR_ANS_PTY, m);
+	mm_request_send("postauth", socket, MONITOR_ANS_PTY, m);
 
+#warning FD is being passed, can SOAAP model this?
 	mm_send_fd(socket, s->ptyfd);
 	mm_send_fd(socket, s->ttyfd);
 
@@ -1058,7 +1104,7 @@ mm_answer_pty(int socket, Buffer *m)
 	if (s != NULL)
 		mm_session_close(s);
 	buffer_put_int(m, 0);
-	mm_request_send(socket, MONITOR_ANS_PTY, m);
+	mm_request_send("postauth", socket, MONITOR_ANS_PTY, m);
 	return (0);
 }
 
@@ -1100,7 +1146,7 @@ mm_answer_sesskey(int socket, Buffer *m)
 
 	BN_clear_free(p);
 
-	mm_request_send(socket, MONITOR_ANS_SESSKEY, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_SESSKEY, m);
 
 	/* Turn on permissions for sessid passing */
 	monitor_permit(mon_dispatch, MONITOR_REQ_SESSID, 1);
@@ -1165,7 +1211,7 @@ mm_answer_rsa_keyallowed(int socket, Buffer *m)
 
 	mm_append_debug(m);
 
-	mm_request_send(socket, MONITOR_ANS_RSAKEYALLOWED, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_RSAKEYALLOWED, m);
 
 	monitor_permit(mon_dispatch, MONITOR_REQ_RSACHALLENGE, allowed);
 	monitor_permit(mon_dispatch, MONITOR_REQ_RSARESPONSE, 0);
@@ -1199,7 +1245,7 @@ mm_answer_rsa_challenge(int socket, Buffer *m)
 	buffer_put_bignum2(m, ssh1_challenge);
 
 	debug3("%s sending reply", __FUNCTION__);
-	mm_request_send(socket, MONITOR_ANS_RSACHALLENGE, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_RSACHALLENGE, m);
 
 	monitor_permit(mon_dispatch, MONITOR_REQ_RSARESPONSE, 1);
 	return (0);
@@ -1244,7 +1290,7 @@ mm_answer_rsa_response(int socket, Buffer *m)
 
 	buffer_clear(m);
 	buffer_put_int(m, success);
-	mm_request_send(socket, MONITOR_ANS_RSARESPONSE, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_RSARESPONSE, m);
 
 	return (success);
 }
@@ -1362,7 +1408,7 @@ mm_get_keystate(struct monitor *pmonitor)
 	debug3("%s: Waiting for new keys", __FUNCTION__);
 
 	buffer_init(&m);
-	mm_request_receive_expect(pmonitor->m_sendfd, MONITOR_REQ_KEYEXPORT, &m);
+	mm_request_receive_expect("preauth", pmonitor->m_sendfd, MONITOR_REQ_KEYEXPORT, &m);
 	if (!compat20) {
 		child_state.ssh1protoflags = buffer_get_int(&m);
 		child_state.ssh1cipher = buffer_get_int(&m);
