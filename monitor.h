@@ -81,30 +81,7 @@ void _mm_request_send(int, enum monitor_reqtype, Buffer *);
 void mm_request_receive(int, Buffer *);
 void _mm_request_receive_expect(int, enum monitor_reqtype, Buffer *);
 
-void noop_fp_target();
-
 #define mm_request_send(receiver, fd, type, arg) do { __soaap_rpc_send_with_params(receiver, type, arg); _mm_request_send(fd, type, arg); } while(0)
-// #define mm_request_send(receiver, fd, type, arg) do { __soaap_rpc_send(receiver, type); _mm_request_send(fd, type, arg); } while(0)
-// FIXME: __soaap_rpc_recv with null as parameter crashes -> for now just use noop_fp_target as a workaround
-/*
-#0 0x7f91102a722e llvm::sys::PrintStackTrace(_IO_FILE*) /home/alex/devel/soaap/llvm/build/../lib/Support/Unix/Signals.inc:422:15
-#1 0x7f91102a7ffb PrintStackTraceSignalHandler(void*) /home/alex/devel/soaap/llvm/build/../lib/Support/Unix/Signals.inc:481:1
-#2 0x7f91102aa714 SignalHandler(int) /home/alex/devel/soaap/llvm/build/../lib/Support/Unix/Signals.inc:198:60
-#3 0x7f910f721050 __restore_rt (/lib64/libpthread.so.0+0x10050)
-#4 0x7f91105ede10 llvm::PointerIntPair<llvm::StringMapEntry<llvm::Value*>*, 1u, unsigned int, llvm::PointerLikeTypeTraits<llvm::StringMapEntry<llvm::Value*>*> >::getPointer() const /home/alex/devel/soaap/llvm/build/../include/llvm/ADT/PointerIntPair.h:75:12
-#5 0x7f91105eddec llvm::Value::getValueName() const /home/alex/devel/soaap/llvm/build/../include/llvm/IR/Value.h:229:44
-#6 0x7f9110837969 llvm::Value::getName() const /home/alex/devel/soaap/llvm/build/../lib/IR/Value.cpp:163:8
-#7 0x7f9112e4ae71 soaap::RPCGraph::dump() /home/alex/devel/soaap/soaap/soaap/Analysis/InfoFlow/RPC/RPCGraph.cpp:141:91
-#8 0x7f9112d6df8e soaap::Soaap::buildRPCGraph(llvm::Module&) /home/alex/devel/soaap/soaap/soaap/Passes/Soaap.cpp:279:5
-#9 0x7f9112d6adcf soaap::Soaap::runOnModule(llvm::Module&) /home/alex/devel/soaap/soaap/soaap/Passes/Soaap.cpp:126:5
-#10 0x7f91107ebb2c (anonymous namespace)::MPPassManager::runOnModule(llvm::Module&) /home/alex/devel/soaap/llvm/build/../lib/IR/LegacyPassManager.cpp:1616:23
-#11 0x7f91107eb70e llvm::legacy::PassManagerImpl::run(llvm::Module&) /home/alex/devel/soaap/llvm/build/../lib/IR/LegacyPassManager.cpp:1723:16
-#12 0x7f91107ec0f1 llvm::legacy::PassManager::run(llvm::Module&) /home/alex/devel/soaap/llvm/build/../lib/IR/LegacyPassManager.cpp:1756:10
-#13 0x436491 main /home/alex/devel/soaap/soaap/tools/soaap.cpp:146:3
-#14 0x7f910e95eb45 __libc_start_main /usr/src/debug/glibc-2.20/csu/libc-start.c:323:0
-#15 0x4351ab _start /home/abuild/rpmbuild/BUILD/glibc-2.20/csu/../sysdeps/x86_64/start.S:125:0
-*/
 #define mm_request_receive_expect(sender, fd, type, arg) do { __soaap_rpc_recv_sync(sender, type); _mm_request_receive_expect(fd, type, arg); } while(0)
 
-// TODO once its been implemented add the answer_type: do { __soaap_rpc_send_recv_sync(receiver, request_type, answer_type, arg)
 #endif /* _MONITOR_H_ */
