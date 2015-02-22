@@ -2361,7 +2361,7 @@ if test "$ac_cv_lib_pam_pam_set_item" = yes ; then
 	LIBS=`echo $LIBS | sed 's/-ldl //'`
 fi
 
-CFLAGS="$CFLAGS -Werror=implicit-function-declaration"
+CFLAGS="$CFLAGS -Werror=implicit-function-declaration -Wno-incompatible-library-redeclaration"
 
 AC_EXEEXT
 AC_CONFIG_FILES([Makefile openbsd-compat/Makefile scard/Makefile ssh_prng_cmds])
