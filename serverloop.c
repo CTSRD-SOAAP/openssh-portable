@@ -481,7 +481,7 @@ process_buffered_input_packets(void)
  * stdin (of the child program), and reads from stdout and stderr (of the
  * child program).
  */
-__soaap_privileged void
+void
 server_loop(pid_t pid, int fdin_arg, int fdout_arg, int fderr_arg)
 {
 	fd_set *readset = NULL, *writeset = NULL;
