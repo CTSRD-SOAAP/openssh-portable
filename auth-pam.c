@@ -172,8 +172,9 @@ static int do_pam_conversation(int num_msg, const struct pam_message **msg,
 	return PAM_SUCCESS;
 }
 
+// SOAAP: this should be static, there are no other users
 /* Called at exit to cleanly shutdown PAM */
-void do_pam_cleanup_proc(void *context)
+__soaap_privileged static void do_pam_cleanup_proc(void *context)
 {
 	int pam_retval = PAM_SUCCESS;
 
