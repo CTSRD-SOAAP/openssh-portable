@@ -65,16 +65,16 @@ struct monitor {
 	int			 m_pid;
 };
 
-struct monitor *monitor_init(void);
-void monitor_reinit(struct monitor *);
-void monitor_sync(struct monitor *);
+__soaap_privileged struct monitor *monitor_init(void);
+__soaap_privileged void monitor_reinit(struct monitor *);
+__soaap_privileged void monitor_sync(struct monitor *);
 
 struct Authctxt;
-struct Authctxt *monitor_child_preauth(struct monitor *);
-void monitor_child_postauth(struct monitor *);
+__soaap_privileged struct Authctxt *monitor_child_preauth(struct monitor *);
+__soaap_privileged void monitor_child_postauth(struct monitor *);
 
 struct mon_table;
-int monitor_read(struct monitor*, struct mon_table *, struct mon_table **);
+__soaap_privileged int monitor_read(struct monitor*, struct mon_table *, struct mon_table **);
 
 /* Prototypes for request sending and receiving */
 void _mm_request_send(int, enum monitor_reqtype, Buffer *);
@@ -107,5 +107,4 @@ void noop_fp_target();
 #define mm_request_receive_expect(sender, fd, type, arg) do { __soaap_rpc_recv_sync(sender, type); _mm_request_receive_expect(fd, type, arg); } while(0)
 
 // TODO once its been implemented add the answer_type: do { __soaap_rpc_send_recv_sync(receiver, request_type, answer_type, arg)
-
 #endif /* _MONITOR_H_ */
