@@ -5,9 +5,8 @@ SOAAP_ROOT=$(CURDIR)/..
 DEFINES=-DHAVE_CONFIG_H -D_GNU_SOURCE
 # for some reason we need to add /usr/include and the dir with stddef.h here
 INCLUDES=-isystem $(SOAAP_ROOT)/llvm/build/lib/clang/3.7.0/include/ -isystem /usr/include -I $(SOAAP_ROOT)/soaap/include/ -I .
-WARNINGS=-Wundef -Wno-conversion -Werror=implicit-function-declaration -Wno-incompatible-library-redeclaration
-CFLAGS=-cc1 -emit-llvm -g
-#-fcolor-diagnostics
+WARNINGS=-Wundef -Wno-conversion -Werror=implicit-function-declaration -Wno-incompatible-library-redeclaration -Wno-pointer-sign
+CFLAGS=-cc1 -emit-llvm -g -fcolor-diagnostics
 CLANG=$(SOAAP_ROOT)/llvm/build/bin/clang
 LLVM_LINK=$(SOAAP_ROOT)/llvm/build/bin/llvm-link
 SOAAP=$(SOAAP_ROOT)/soaap/build/bin/soaap
@@ -59,4 +58,10 @@ $(OPENBSD_COMPAT_IR_FILES): %.ll: %.c
 
 # special case target for umac128
 umac128.ll: umac.c
-	$(CLANG) $(CFLAGS) $(DEFINES) $(INCLUDES) -o $@ $< -DUMAC_OUTPUT_LEN=16 -Dumac_new=umac128_new -Dumac_update=umac128_update -Dumac_final=umac128_final -Dumac_delete=umac128_delete
+	$(CLANG) $(CFLAGS) $(DEFINES) $(INCLUDES) $(WARNINGS) -o $@ $< -DUMAC_OUTPUT_LEN=16 -Dumac_new=umac128_new -Dumac_update=umac128_update -Dumac_final=umac128_final -Dumac_delete=umac128_delete
+
+#silence the const return value in cipher.c and mac.c
+cipher.ll: cipher.c
+	$(CLANG) $(CFLAGS) $(DEFINES) $(INCLUDES) $(WARNINGS) -o $@ $< -Wno-incompatible-pointer-types
+mac.ll: mac.c
+	$(CLANG) $(CFLAGS) $(DEFINES) $(INCLUDES) $(WARNINGS) -o $@ $< -Wno-incompatible-pointer-types
