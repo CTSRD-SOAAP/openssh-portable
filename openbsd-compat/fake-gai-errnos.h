@@ -10,5 +10,7 @@
 /* for old netdb.h */
 #ifndef EAI_NODATA
 #define EAI_NODATA	1
+#endif
+#ifndef EAI_NODATA
 #define EAI_MEMORY	2
 #endif
