@@ -35,15 +35,15 @@ all: sshd_executable.bc
 	@echo
 
 soaap: sshd_executable.bc
-	$(SOAAP) -o sshd.soaap $^
+	$(SOAAP) -o sshd.soaap $^ -soaap-syscall-traces
 soaap-linux: sshd_executable.bc
 	$(SOAAP) -o sshd.soaap $^ -soaap-sandbox-platform=seccomp -soaap-syscall-traces
 
 soaap-all: sshd_executable.bc
-	$(SOAAP) -o sshd.soaap $^ -soaap-infer-fp-targets -soaap-list-fp-calls -soaap-list-fp-targets -soaap-list-sandboxed-funcs -soaap-sandbox-platform=capsicum -soaap-dump-rpc-graph -soaap-syscall-traces
+	$(SOAAP) -o sshd.soaap $^ -soaap-infer-fp-targets -soaap-list-fp-calls -soaap-list-fp-targets -soaap-list-sandboxed-funcs -soaap-sandbox-platform=capsicum -soaap-dump-rpc-graph -soaap-syscall-traces -soaap-skip-global-variable-analysis
 
 soaap-json: sshd_executable.bc
-	$(SOAAP) -o sshd.soaap $^ -soaap-infer-fp-targets -soaap-list-fp-calls -soaap-list-fp-targets -soaap-list-sandboxed-funcs -soaap-sandbox-platform=capsicum -soaap-dump-rpc-graph -soaap-report-output-formats=json -soaap-syscall-traces
+	$(SOAAP) -o sshd.soaap $^ -soaap-infer-fp-targets -soaap-list-fp-calls -soaap-list-fp-targets -soaap-list-sandboxed-funcs -soaap-sandbox-platform=capsicum -soaap-dump-rpc-graph -soaap-report-output-formats=json -soaap-syscall-traces -soaap-skip-global-variable-analysis
 
 clean:
 	rm -f *.ll *.bc openbsd-compat/*.ll sshd.soaap
