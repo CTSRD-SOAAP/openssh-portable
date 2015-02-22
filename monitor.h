@@ -57,7 +57,7 @@ enum monitor_reqtype {
 
 struct mm_master;
 struct monitor {
-	int			 m_recvfd;
+	int			 m_recvfd __soaap_fd_permit(read,write);
 	int			 m_sendfd;
 	struct mm_master	*m_zback;
 	struct mm_master	*m_zlib;
