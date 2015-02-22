@@ -32,8 +32,8 @@
 
 ssize_t	atomicio_impl(ssize_t (*f)() __soaap_fp(read, write), int fd, void * buf, size_t size);
 
-__soaap_privileged ssize_t atomicio_read(int fd, void * buf, size_t size);
-__soaap_privileged ssize_t atomicio_write(int fd, void * buf, size_t size);
+ssize_t atomicio_read(int fd, void * buf, size_t size);
+ssize_t atomicio_write(int fd, void * buf, size_t size);
 
 #ifndef COMBINE
 #define COMBINE1(X,Y) X##Y  // helper macro
