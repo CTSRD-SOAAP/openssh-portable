@@ -165,7 +165,7 @@ void
 auth2_challenge_stop(Authctxt *authctxt)
 {
 	/* unregister callback */
-	dispatch_set(SSH2_MSG_USERAUTH_INFO_RESPONSE, NULL);
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_INFO_RESPONSE, NULL);
 	if (authctxt->kbdintctxt != NULL)  {
 		kbdint_free(authctxt->kbdintctxt);
 		authctxt->kbdintctxt = NULL;
@@ -196,7 +196,7 @@ auth2_challenge_start(Authctxt *authctxt)
 		auth2_challenge_stop(authctxt);
 		return 0;
 	}
-	dispatch_set(SSH2_MSG_USERAUTH_INFO_RESPONSE,
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_INFO_RESPONSE,
 	    &input_userauth_info_response);
 
 	authctxt->postponed = 1;

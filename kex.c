@@ -51,7 +51,8 @@ struct monitor *pmonitor;
 
 
 /* prototype */
-static void kex_kexinit_finish(Kex *);
+static void kex_kexinit_finish_preauth(Kex *);
+static void kex_kexinit_finish_postauth(Kex *);
 static void kex_choose_conf(Kex *);
 
 /* put algorithm proposal into buffer */
@@ -118,19 +119,26 @@ kex_protocol_error(int type, u_int32_t seq, void *ctxt)
 	error("Hm, kex protocol error: type %d seq %u", type, seq);
 }
 
-static void
-kex_reset_dispatch(void)
+__soaap_privileged static void
+kex_reset_dispatch_preauth(void)
 {
-	dispatch_range(SSH2_MSG_TRANSPORT_MIN,
+	dispatch_range_preauth(SSH2_MSG_TRANSPORT_MIN,
 	    SSH2_MSG_TRANSPORT_MAX, &kex_protocol_error);
-	dispatch_set(SSH2_MSG_KEXINIT, &kex_input_kexinit);
+	dispatch_set_preauth(SSH2_MSG_KEXINIT, &kex_input_kexinit_preauth);
 }
 
-void
-kex_finish(Kex *kex)
+__soaap_privileged static void
+kex_reset_dispatch_postauth(void)
 {
-	kex_reset_dispatch();
+	dispatch_range_postauth(SSH2_MSG_TRANSPORT_MIN,
+	    SSH2_MSG_TRANSPORT_MAX, &kex_protocol_error);
+	dispatch_set_postauth(SSH2_MSG_KEXINIT, &kex_input_kexinit_postauth);
+}
 
+
+static void
+kex_finish_common(Kex *kex)
+{
 	packet_start(SSH2_MSG_NEWKEYS);
 	packet_send();
 	/* packet_write_wait(); */
@@ -147,6 +155,20 @@ kex_finish(Kex *kex)
 	kex->flags &= ~KEX_INIT_SENT;
 	xfree(kex->name);
 	kex->name = NULL;
+}
+
+void
+kex_finish_preauth(Kex *kex)
+{
+	kex_reset_dispatch_preauth();
+	kex_finish_common(kex);
+}
+
+void
+kex_finish_postauth(Kex *kex)
+{
+	kex_reset_dispatch_postauth();
+	kex_finish_common(kex);
 }
 
 void
@@ -183,13 +205,12 @@ kex_send_kexinit(Kex *kex)
 	kex->flags |= KEX_INIT_SENT;
 }
 
-void
-kex_input_kexinit(int type, u_int32_t seq, void *ctxt)
+static void
+kex_input_kexinit_common(int type, u_int32_t seq, Kex *kex)
 {
 	char *ptr;
 	int dlen;
 	int i;
-	Kex *kex = (Kex *)ctxt;
 
 	debug("SSH2_MSG_KEXINIT received");
 	if (kex == NULL)
@@ -206,12 +227,22 @@ kex_input_kexinit(int type, u_int32_t seq, void *ctxt)
 	packet_get_char();
 	packet_get_int();
 	packet_check_eom();
-
-	kex_kexinit_finish(kex);
+}
+void
+kex_input_kexinit_preauth(int type, u_int32_t seq, void *ctxt)
+{
+	Kex *kex = (Kex *)ctxt;
+	kex_kexinit_finish_preauth(kex);
+}
+void
+kex_input_kexinit_postauth(int type, u_int32_t seq, void *ctxt)
+{
+	Kex *kex = (Kex *)ctxt;
+	kex_kexinit_finish_postauth(kex);
 }
 
-Kex *
-kex_setup(char *proposal[PROPOSAL_MAX])
+static Kex *
+kex_setup_common(char *proposal[PROPOSAL_MAX])
 {
 	Kex *kex;
 
@@ -223,13 +254,28 @@ kex_setup(char *proposal[PROPOSAL_MAX])
 	kex->done = 0;
 
 	kex_send_kexinit(kex);					/* we start */
-	kex_reset_dispatch();
 
 	return kex;
 }
 
+Kex *
+kex_setup_preauth(char *proposal[PROPOSAL_MAX])
+{
+	Kex* kex = kex_setup_common(proposal);
+	kex_reset_dispatch_preauth();
+	return kex;
+}
+
+Kex *
+kex_setup_postauth(char *proposal[PROPOSAL_MAX])
+{
+	Kex* kex = kex_setup_common(proposal);
+	kex_reset_dispatch_postauth();
+	return kex;
+}
+
 static void
-kex_kexinit_finish(Kex *kex)
+kex_kexinit_finish_preauth(Kex *kex)
 {
 	if (!(kex->flags & KEX_INIT_SENT))
 		kex_send_kexinit(kex);
@@ -238,10 +284,30 @@ kex_kexinit_finish(Kex *kex)
 
 	switch (kex->kex_type) {
 	case DH_GRP1_SHA1:
-		kexdh(kex);
+		kexdh_preauth(kex);
 		break;
 	case DH_GEX_SHA1:
-		kexgex(kex);
+		kexgex_preauth(kex);
+		break;
+	default:
+		fatal("Unsupported key exchange %d", kex->kex_type);
+	}
+}
+
+static void
+kex_kexinit_finish_postauth(Kex *kex)
+{
+	if (!(kex->flags & KEX_INIT_SENT))
+		kex_send_kexinit(kex);
+
+	kex_choose_conf(kex);
+
+	switch (kex->kex_type) {
+	case DH_GRP1_SHA1:
+		kexdh_postauth(kex);
+		break;
+	case DH_GEX_SHA1:
+		kexgex_postauth(kex);
 		break;
 	default:
 		fatal("Unsupported key exchange %d", kex->kex_type);

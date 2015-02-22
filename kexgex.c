@@ -249,8 +249,6 @@ kexgex_client(Kex *kex)
 	}
 	kex_derive_keys(kex, hash, shared_secret);
 	BN_clear_free(shared_secret);
-
-	kex_finish(kex);
 }
 
 /* server */
@@ -400,15 +398,25 @@ kexgex_server(Kex *kex)
 
 	kex_derive_keys(kex, hash, shared_secret);
 	BN_clear_free(shared_secret);
-
-	kex_finish(kex);
 }
 
 void
-kexgex(Kex *kex)
+kexgex_preauth(Kex *kex)
 {
-	if (kex->server)
+	if (kex->server) {
 		kexgex_server(kex);
-	else
+	} else {
 		kexgex_client(kex);
+	}
+	kex_finish_preauth(kex);
+}
+void
+kexgex_postauth(Kex *kex)
+{
+	if (kex->server) {
+		kexgex_server(kex);
+	} else {
+		kexgex_client(kex);
+	}
+	kex_finish_postauth(kex);
 }

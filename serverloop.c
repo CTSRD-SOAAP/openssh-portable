@@ -55,6 +55,8 @@ RCSID("$OpenBSD: serverloop.c,v 1.101 2002/03/30 18:51:15 markus Exp $");
 #include "misc.h"
 #include "kex.h"
 
+#include <soaap.h>
+
 extern ServerOptions options;
 
 /* XXX */
@@ -469,7 +471,7 @@ drain_output(void)
 static void
 process_buffered_input_packets(void)
 {
-	dispatch_run(DISPATCH_NONBLOCK, NULL, compat20 ? xxx_kex : NULL);
+	dispatch_run_postauth(DISPATCH_NONBLOCK, NULL, compat20 ? xxx_kex : NULL);
 }
 
 /*
@@ -479,7 +481,7 @@ process_buffered_input_packets(void)
  * stdin (of the child program), and reads from stdout and stderr (of the
  * child program).
  */
-void
+__soaap_privileged void
 server_loop(pid_t pid, int fdin_arg, int fdout_arg, int fderr_arg)
 {
 	fd_set *readset = NULL, *writeset = NULL;
@@ -1025,44 +1027,44 @@ static void
 server_init_dispatch_20(void)
 {
 	debug("server_init_dispatch_20");
-	dispatch_init(&dispatch_protocol_error);
-	dispatch_set(SSH2_MSG_CHANNEL_CLOSE, &channel_input_oclose);
-	dispatch_set(SSH2_MSG_CHANNEL_DATA, &channel_input_data);
-	dispatch_set(SSH2_MSG_CHANNEL_EOF, &channel_input_ieof);
-	dispatch_set(SSH2_MSG_CHANNEL_EXTENDED_DATA, &channel_input_extended_data);
-	dispatch_set(SSH2_MSG_CHANNEL_OPEN, &server_input_channel_open);
-	dispatch_set(SSH2_MSG_CHANNEL_OPEN_CONFIRMATION, &channel_input_open_confirmation);
-	dispatch_set(SSH2_MSG_CHANNEL_OPEN_FAILURE, &channel_input_open_failure);
-	dispatch_set(SSH2_MSG_CHANNEL_REQUEST, &server_input_channel_req);
-	dispatch_set(SSH2_MSG_CHANNEL_WINDOW_ADJUST, &channel_input_window_adjust);
-	dispatch_set(SSH2_MSG_GLOBAL_REQUEST, &server_input_global_request);
+	dispatch_init_postauth(&dispatch_protocol_error);
+	dispatch_set_postauth(SSH2_MSG_CHANNEL_CLOSE, &channel_input_oclose);
+	dispatch_set_postauth(SSH2_MSG_CHANNEL_DATA, &channel_input_data);
+	dispatch_set_postauth(SSH2_MSG_CHANNEL_EOF, &channel_input_ieof);
+	dispatch_set_postauth(SSH2_MSG_CHANNEL_EXTENDED_DATA, &channel_input_extended_data);
+	dispatch_set_postauth(SSH2_MSG_CHANNEL_OPEN, &server_input_channel_open);
+	dispatch_set_postauth(SSH2_MSG_CHANNEL_OPEN_CONFIRMATION, &channel_input_open_confirmation);
+	dispatch_set_postauth(SSH2_MSG_CHANNEL_OPEN_FAILURE, &channel_input_open_failure);
+	dispatch_set_postauth(SSH2_MSG_CHANNEL_REQUEST, &server_input_channel_req);
+	dispatch_set_postauth(SSH2_MSG_CHANNEL_WINDOW_ADJUST, &channel_input_window_adjust);
+	dispatch_set_postauth(SSH2_MSG_GLOBAL_REQUEST, &server_input_global_request);
 	/* client_alive */
-	dispatch_set(SSH2_MSG_CHANNEL_FAILURE, &server_input_channel_failure);
+	dispatch_set_postauth(SSH2_MSG_CHANNEL_FAILURE, &server_input_channel_failure);
 	/* rekeying */
-	dispatch_set(SSH2_MSG_KEXINIT, &kex_input_kexinit);
+	dispatch_set_postauth(SSH2_MSG_KEXINIT, &kex_input_kexinit_postauth);
 }
 static void
 server_init_dispatch_13(void)
 {
 	debug("server_init_dispatch_13");
-	dispatch_init(NULL);
-	dispatch_set(SSH_CMSG_EOF, &server_input_eof);
-	dispatch_set(SSH_CMSG_STDIN_DATA, &server_input_stdin_data);
-	dispatch_set(SSH_CMSG_WINDOW_SIZE, &server_input_window_size);
-	dispatch_set(SSH_MSG_CHANNEL_CLOSE, &channel_input_close);
-	dispatch_set(SSH_MSG_CHANNEL_CLOSE_CONFIRMATION, &channel_input_close_confirmation);
-	dispatch_set(SSH_MSG_CHANNEL_DATA, &channel_input_data);
-	dispatch_set(SSH_MSG_CHANNEL_OPEN_CONFIRMATION, &channel_input_open_confirmation);
-	dispatch_set(SSH_MSG_CHANNEL_OPEN_FAILURE, &channel_input_open_failure);
-	dispatch_set(SSH_MSG_PORT_OPEN, &channel_input_port_open);
+	dispatch_init_postauth(NULL);
+	dispatch_set_postauth(SSH_CMSG_EOF, &server_input_eof);
+	dispatch_set_postauth(SSH_CMSG_STDIN_DATA, &server_input_stdin_data);
+	dispatch_set_postauth(SSH_CMSG_WINDOW_SIZE, &server_input_window_size);
+	dispatch_set_postauth(SSH_MSG_CHANNEL_CLOSE, &channel_input_close);
+	dispatch_set_postauth(SSH_MSG_CHANNEL_CLOSE_CONFIRMATION, &channel_input_close_confirmation);
+	dispatch_set_postauth(SSH_MSG_CHANNEL_DATA, &channel_input_data);
+	dispatch_set_postauth(SSH_MSG_CHANNEL_OPEN_CONFIRMATION, &channel_input_open_confirmation);
+	dispatch_set_postauth(SSH_MSG_CHANNEL_OPEN_FAILURE, &channel_input_open_failure);
+	dispatch_set_postauth(SSH_MSG_PORT_OPEN, &channel_input_port_open);
 }
 static void
 server_init_dispatch_15(void)
 {
 	server_init_dispatch_13();
 	debug("server_init_dispatch_15");
-	dispatch_set(SSH_MSG_CHANNEL_CLOSE, &channel_input_ieof);
-	dispatch_set(SSH_MSG_CHANNEL_CLOSE_CONFIRMATION, &channel_input_oclose);
+	dispatch_set_postauth(SSH_MSG_CHANNEL_CLOSE, &channel_input_ieof);
+	dispatch_set_postauth(SSH_MSG_CHANNEL_CLOSE_CONFIRMATION, &channel_input_oclose);
 }
 static void
 server_init_dispatch(void)

@@ -114,15 +114,20 @@ struct Kex {
 	int	(*host_key_index)(Key *);
 };
 
-Kex	*kex_setup(char *[PROPOSAL_MAX]);
-void	 kex_finish(Kex *);
+Kex	*kex_setup_preauth(char *[PROPOSAL_MAX]);
+void	 kex_finish_preauth(Kex *);
+Kex	*kex_setup_postauth(char *[PROPOSAL_MAX]);
+void	 kex_finish_postauth(Kex *);
 
 void	 kex_send_kexinit(Kex *);
-void	 kex_input_kexinit(int, u_int32_t, void *);
+void	 kex_input_kexinit_preauth(int, u_int32_t, void *);
+void	 kex_input_kexinit_postauth(int, u_int32_t, void *);
 void	 kex_derive_keys(Kex *, u_char *, BIGNUM *);
 
-void	 kexdh(Kex *);
-void	 kexgex(Kex *);
+void	 kexdh_preauth(Kex *);
+void	 kexgex_preauth(Kex *);
+void	 kexdh_postauth(Kex *);
+void	 kexgex_postauth(Kex *);
 
 Newkeys *kex_get_newkeys(int);
 

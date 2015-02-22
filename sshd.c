@@ -1759,7 +1759,7 @@ do_ssh2_kex(void)
 	myproposal[PROPOSAL_SERVER_HOST_KEY_ALGS] = list_hostkey_types();
 
 	/* start key exchange */
-	kex = kex_setup(myproposal);
+	kex = kex_setup_preauth(myproposal);
 	kex->server = 1;
 	kex->client_version_string=client_version_string;
 	kex->server_version_string=server_version_string;
@@ -1768,7 +1768,7 @@ do_ssh2_kex(void)
 
 	xxx_kex = kex;
 
-	dispatch_run(DISPATCH_BLOCK, &kex->done, kex);
+	dispatch_run_preauth(DISPATCH_BLOCK, &kex->done, kex);
 
 	session_id2 = kex->session_id;
 	session_id2_len = kex->session_id_len;

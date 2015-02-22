@@ -125,9 +125,9 @@ do_authentication2(void)
 	if (use_privsep)
 		options.pam_authentication_via_kbd_int = 0;
 
-	dispatch_init(&dispatch_protocol_error);
-	dispatch_set(SSH2_MSG_SERVICE_REQUEST, &input_service_request);
-	dispatch_run(DISPATCH_BLOCK, &authctxt->success, authctxt);
+	dispatch_init_preauth(&dispatch_protocol_error);
+	dispatch_set_preauth(SSH2_MSG_SERVICE_REQUEST, &input_service_request);
+	dispatch_run_preauth(DISPATCH_BLOCK, &authctxt->success, authctxt);
 
 	return (authctxt);
 }
@@ -148,7 +148,7 @@ input_service_request(int type, u_int32_t seq, void *ctxt)
 		if (!authctxt->success) {
 			accept = 1;
 			/* now we can handle user-auth requests */
-			dispatch_set(SSH2_MSG_USERAUTH_REQUEST, &input_userauth_request);
+			dispatch_set_preauth(SSH2_MSG_USERAUTH_REQUEST, &input_userauth_request);
 		}
 	}
 	/* XXX all other service requests are denied */
@@ -259,7 +259,7 @@ userauth_finish(Authctxt *authctxt, int authenticated, char *method)
 	/* XXX todo: check if multiple auth methods are needed */
 	if (authenticated == 1) {
 		/* turn off userauth */
-		dispatch_set(SSH2_MSG_USERAUTH_REQUEST, &dispatch_protocol_ignore);
+		dispatch_set_preauth(SSH2_MSG_USERAUTH_REQUEST, &dispatch_protocol_ignore);
 		packet_start(SSH2_MSG_USERAUTH_SUCCESS);
 		packet_send();
 		packet_write_wait();

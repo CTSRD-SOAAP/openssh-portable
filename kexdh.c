@@ -189,7 +189,6 @@ kexdh_client(Kex *kex)
 
 	kex_derive_keys(kex, hash, shared_secret);
 	BN_clear_free(shared_secret);
-	kex_finish(kex);
 }
 
 /* server */
@@ -294,14 +293,27 @@ kexdh_server(Kex *kex)
 
 	kex_derive_keys(kex, hash, shared_secret);
 	BN_clear_free(shared_secret);
-	kex_finish(kex);
 }
 
 void
-kexdh(Kex *kex)
+kexdh_preauth(Kex *kex)
 {
-	if (kex->server)
+	if (kex->server) {
 		kexdh_server(kex);
-	else
+	}
+	else {
 		kexdh_client(kex);
+	}
+	kex_finish_preauth(kex);
+}
+void
+kexdh_postauth(Kex *kex)
+{
+	if (kex->server) {
+		kexdh_server(kex);
+	}
+	else {
+		kexdh_client(kex);
+	}
+	kex_finish_postauth(kex);
 }
