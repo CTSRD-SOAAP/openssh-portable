@@ -34,7 +34,7 @@ RCSID("$OpenBSD: atomicio.c,v 1.10 2001/05/08 22:48:07 markus Exp $");
  */
 ssize_t
 atomicio_impl(f2, fd, _s, n)
-	ssize_t (*f2) (int, void*, size_t);
+	ssize_t (*f2) ();
 	int fd;
 	void *_s;
 	size_t n;
@@ -66,11 +66,11 @@ atomicio_impl(f2, fd, _s, n)
 ssize_t atomicio_read(int fd, void * buf, size_t size) {
 	// just do a 0 byte read on fd so that SOAAP can detect the call since somhow the function pointer annotation won't work
 	read(fd, buf, 0);
-	atomicio_impl(read, fd, buf, size);
+	return atomicio_impl(read, fd, buf, size);
 }
 
 ssize_t atomicio_write(int fd, void * buf, size_t size) {
 	// just do a 0 byte write on fd so that SOAAP can detect the call since somhow the function pointer annotation won't work
 	write(fd, buf, 0);
-	atomicio_impl(write, fd, buf, size);
+	return atomicio_impl(write, fd, buf, size);
 }
