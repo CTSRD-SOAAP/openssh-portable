@@ -40,10 +40,10 @@ auth2_pam(Authctxt *authctxt)
 	conv2.appdata_ptr = authctxt;
 	do_pam_set_conv(&conv2);
 
-	dispatch_set(SSH2_MSG_USERAUTH_INFO_RESPONSE,
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_INFO_RESPONSE,
 	    &input_userauth_info_response_pam);
 	retval = (do_pam_authenticate(0) == PAM_SUCCESS);
-	dispatch_set(SSH2_MSG_USERAUTH_INFO_RESPONSE, NULL);
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_INFO_RESPONSE, NULL);
 
 	return retval;
 }
@@ -115,7 +115,7 @@ do_pam_conversation_kbd_int(int num_msg, const struct pam_message **msg,
 	 */
 	while(context_pam2.finished == 0) {
 		done = 1;
-		dispatch_run(DISPATCH_BLOCK, &done, appdata_ptr);
+		dispatch_run_preauth(DISPATCH_BLOCK, &done, appdata_ptr);
 		if(context_pam2.finished == 0)
 			debug("extra packet during conversation");
 	}
