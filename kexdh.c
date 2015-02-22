@@ -295,6 +295,8 @@ kexdh_server(Kex *kex)
 	BN_clear_free(shared_secret);
 }
 
+#warning kex->server will always be true!!
+
 void
 kexdh_preauth(Kex *kex)
 {
@@ -302,7 +304,8 @@ kexdh_preauth(Kex *kex)
 		kexdh_server(kex);
 	}
 	else {
-		kexdh_client(kex);
+		// in SOAAP we don't care about the client side (actually this is dead codee in sshd)
+		// kexdh_client(kex);
 	}
 	kex_finish_preauth(kex);
 }
@@ -313,7 +316,8 @@ kexdh_postauth(Kex *kex)
 		kexdh_server(kex);
 	}
 	else {
-		kexdh_client(kex);
+		// in SOAAP we don't care about the client side (actually this is dead codee in sshd)
+		// kexdh_client(kex);
 	}
 	kex_finish_postauth(kex);
 }

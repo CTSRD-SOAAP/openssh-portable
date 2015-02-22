@@ -406,7 +406,8 @@ kexgex_preauth(Kex *kex)
 	if (kex->server) {
 		kexgex_server(kex);
 	} else {
-		kexgex_client(kex);
+		// in SOAAP we don't care about the client side (actually this is dead codee in sshd)
+		// kexgex_client(kex);
 	}
 	kex_finish_preauth(kex);
 }
@@ -416,7 +417,8 @@ kexgex_postauth(Kex *kex)
 	if (kex->server) {
 		kexgex_server(kex);
 	} else {
-		kexgex_client(kex);
+		// in SOAAP we don't care about the client side (actually this is dead codee in sshd)
+		// kexgex_client(kex);
 	}
 	kex_finish_postauth(kex);
 }
