@@ -17,10 +17,12 @@
 #ifndef SSHPTY_H
 #define SSHPTY_H
 
-int	 pty_allocate(int *, int *, char *, int);
-void	 pty_release(const char *);
+#include <soaap.h>
+
+__soaap_privileged int	 pty_allocate(int *, int *, char *, int);
+__soaap_privileged void	 pty_release(const char *);
 void	 pty_make_controlling_tty(int *, const char *);
 void	 pty_change_window_size(int, int, int, int, int);
-void	 pty_setowner(struct passwd *, const char *);
+__soaap_privileged void	 pty_setowner(struct passwd *, const char *);
 
 #endif				/* SSHPTY_H */

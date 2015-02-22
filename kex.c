@@ -119,7 +119,7 @@ kex_protocol_error(int type, u_int32_t seq, void *ctxt)
 	error("Hm, kex protocol error: type %d seq %u", type, seq);
 }
 
-__soaap_privileged static void
+static void
 kex_reset_dispatch_preauth(void)
 {
 	dispatch_range_preauth(SSH2_MSG_TRANSPORT_MIN,
@@ -127,7 +127,7 @@ kex_reset_dispatch_preauth(void)
 	dispatch_set_preauth(SSH2_MSG_KEXINIT, &kex_input_kexinit_preauth);
 }
 
-__soaap_privileged static void
+static void
 kex_reset_dispatch_postauth(void)
 {
 	dispatch_range_postauth(SSH2_MSG_TRANSPORT_MIN,
