@@ -766,6 +766,51 @@ usage(void)
 	exit(1);
 }
 
+// BEGIN: soaap workaround
+__soaap_sandbox_ephemeral("preauth") __attribute__((noreturn))
+static void soaap_preauth_sandbox_wrapper(void) {
+    Authctxt *authctxt; // actually not needed in the privsep child
+    /* perform the key exchange */
+    /* authenticate user and start session */
+    if (compat20) {
+        do_ssh2_kex();
+        authctxt = do_authentication2();
+    } else {
+        do_ssh1_kex();
+        authctxt = do_authentication();
+    }
+    /*
+     * If we use privilege separation, the unprivileged child transfers
+     * the current keystate and exits
+     */
+    if (use_privsep) {
+        mm_send_keystate(pmonitor);
+        exit(0);
+    }
+}
+
+__soaap_sandbox_ephemeral("postauth") __attribute__((noreturn))
+static void soaap_postauth_sandbox_wrapper(Authctxt* authctxt, const char* remote_ip) {
+    /* Perform session preparation. */
+    do_authenticated(authctxt);
+
+    /* The connection has been terminated. */
+    verbose("Closing connection to %.100s", remote_ip);
+
+#ifdef USE_PAM
+    finish_pam();
+#endif /* USE_PAM */
+
+    packet_close();
+
+    if (use_privsep)
+        mm_terminate();
+
+    exit(0);
+}
+// end workaround
+
+
 /*
  * Main program for the daemon.
  */
@@ -1448,25 +1493,9 @@ main(int ac, char **av)
 			goto authenticated; // parent (<privileged>) only returns once authenticated
 
 	// child process
-	__soaap_sandboxed_region_start("preauth");
-	/* perform the key exchange */
-	/* authenticate user and start session */
-	if (compat20) {
-		do_ssh2_kex();
-		authctxt = do_authentication2();
-	} else {
-		do_ssh1_kex();
-		authctxt = do_authentication();
-	}
-	/*
-	 * If we use privilege separation, the unprivileged child transfers
-	 * the current keystate and exits
-	 */
-	if (use_privsep) {
-		mm_send_keystate(pmonitor);
-		exit(0);
-	}
-	__soaap_sandboxed_region_end("preauth");
+    //  __soaap_sandboxed_region_start("preauth");
+    soaap_preauth_sandbox_wrapper(); // work around __soaap_sandboxed_region_start/end not ending control flow of privileged process
+    //  __soaap_sandboxed_region_end("preauth");
 
  authenticated:
 	/*
@@ -1479,25 +1508,10 @@ main(int ac, char **av)
 		if (!compat20)
 			destroy_sensitive_data();
 	}
-	__soaap_sandboxed_region_start("postauth");
 
-	/* Perform session preparation. */
-	do_authenticated(authctxt);
-
-	/* The connection has been terminated. */
-	verbose("Closing connection to %.100s", remote_ip);
-
-#ifdef USE_PAM
-	finish_pam();
-#endif /* USE_PAM */
-
-	packet_close();
-
-	if (use_privsep)
-		mm_terminate();
-
-	__soaap_sandboxed_region_end("postauth");
-	exit(0);
+    //__soaap_sandboxed_region_start("postauth");
+	soaap_postauth_sandbox_wrapper(authctxt, remote_ip); // work around __soaap_sandboxed_region_start/end not ending control flow of privileged process
+	//__soaap_sandboxed_region_end("postauth");
 }
 
 /*
