@@ -6,7 +6,7 @@
 #include <pwd.h> /* For struct passwd */
 
 __soaap_privileged void start_pam(const char *user);
-__soaap_privileged void finish_pam(void);
+void finish_pam(void);
 int auth_pam_password(Authctxt *authctxt, const char *password);
 char **fetch_pam_environment(void);
 int do_pam_authenticate(int flags);
