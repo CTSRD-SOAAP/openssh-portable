@@ -801,9 +801,9 @@ mm_do_pam_account(void)
 		fatal("UsePAM=no, but ended up in %s anyway", __func__);
 
 	buffer_init(&m);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_ACCOUNT, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_ACCOUNT, &m);
 
-	mm_request_receive_expect(pmonitor->m_recvfd,
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd,
 	    MONITOR_ANS_PAM_ACCOUNT, &m);
 	ret = buffer_get_int(&m);
 	msg = buffer_get_string(&m, NULL);
@@ -826,9 +826,9 @@ mm_sshpam_init_ctx(Authctxt *authctxt)
 	debug3("%s", __func__);
 	buffer_init(&m);
 	buffer_put_cstring(&m, authctxt->user);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_INIT_CTX, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_INIT_CTX, &m);
 	debug3("%s: waiting for MONITOR_ANS_PAM_INIT_CTX", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_PAM_INIT_CTX, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_PAM_INIT_CTX, &m);
 	success = buffer_get_int(&m);
 	if (success == 0) {
 		debug3("%s: pam_init_ctx failed", __func__);
@@ -849,9 +849,9 @@ mm_sshpam_query(void *ctx, char **name, char **info,
 
 	debug3("%s", __func__);
 	buffer_init(&m);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_QUERY, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_QUERY, &m);
 	debug3("%s: waiting for MONITOR_ANS_PAM_QUERY", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_PAM_QUERY, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_PAM_QUERY, &m);
 	ret = buffer_get_int(&m);
 	debug3("%s: pam_query returned %d", __func__, ret);
 	*name = buffer_get_string(&m, NULL);
@@ -882,9 +882,9 @@ mm_sshpam_respond(void *ctx, u_int num, char **resp)
 	buffer_put_int(&m, num);
 	for (i = 0; i < num; ++i)
 		buffer_put_cstring(&m, resp[i]);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_RESPOND, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_RESPOND, &m);
 	debug3("%s: waiting for MONITOR_ANS_PAM_RESPOND", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_PAM_RESPOND, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_PAM_RESPOND, &m);
 	ret = buffer_get_int(&m);
 	debug3("%s: pam_respond returned %d", __func__, ret);
 	buffer_free(&m);
@@ -898,9 +898,9 @@ mm_sshpam_free_ctx(void *ctxtp)
 
 	debug3("%s", __func__);
 	buffer_init(&m);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_FREE_CTX, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_FREE_CTX, &m);
 	debug3("%s: waiting for MONITOR_ANS_PAM_FREE_CTX", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_PAM_FREE_CTX, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_PAM_FREE_CTX, &m);
 	buffer_free(&m);
 }
 #endif /* USE_PAM */
@@ -1194,7 +1194,7 @@ mm_audit_event(ssh_audit_event_t event)
 	buffer_init(&m);
 	buffer_put_int(&m, event);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_AUDIT_EVENT, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_AUDIT_EVENT, &m);
 	buffer_free(&m);
 }
 
@@ -1208,7 +1208,7 @@ mm_audit_run_command(const char *command)
 	buffer_init(&m);
 	buffer_put_cstring(&m, command);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_AUDIT_COMMAND, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_AUDIT_COMMAND, &m);
 	buffer_free(&m);
 }
 #endif /* SSH_AUDIT_EVENTS */
@@ -1226,8 +1226,8 @@ mm_ssh_gssapi_server_ctx(Gssctxt **ctx, gss_OID goid)
 	buffer_init(&m);
 	buffer_put_string(&m, goid->elements, goid->length);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_GSSSETUP, &m);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_GSSSETUP, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_GSSSETUP, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_GSSSETUP, &m);
 
 	major = buffer_get_int(&m);
 
@@ -1246,8 +1246,8 @@ mm_ssh_gssapi_accept_ctx(Gssctxt *ctx, gss_buffer_desc *in,
 	buffer_init(&m);
 	buffer_put_string(&m, in->value, in->length);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_GSSSTEP, &m);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_GSSSTEP, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_GSSSTEP, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_GSSSTEP, &m);
 
 	major = buffer_get_int(&m);
 	out->value = buffer_get_string(&m, &len);
@@ -1270,8 +1270,8 @@ mm_ssh_gssapi_checkmic(Gssctxt *ctx, gss_buffer_t gssbuf, gss_buffer_t gssmic)
 	buffer_put_string(&m, gssbuf->value, gssbuf->length);
 	buffer_put_string(&m, gssmic->value, gssmic->length);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_GSSCHECKMIC, &m);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_GSSCHECKMIC,
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_GSSCHECKMIC, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_GSSCHECKMIC,
 	    &m);
 
 	major = buffer_get_int(&m);
@@ -1287,8 +1287,8 @@ mm_ssh_gssapi_userok(char *user)
 
 	buffer_init(&m);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_GSSUSEROK, &m);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_GSSUSEROK,
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_GSSUSEROK, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_GSSUSEROK,
 				  &m);
 
 	authenticated = buffer_get_int(&m);
