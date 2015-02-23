@@ -1313,7 +1313,7 @@ client_input_global_request(int type, u_int32_t seq, void *ctxt)
 static void
 client_init_dispatch_20(void)
 {
-	dispatch_init_privileged(&dispatch_protocol_error);  // ssh binary doesn't need the separation, should be removed
+	dispatch_init(&dispatch_protocol_error);  // ssh binary doesn't need the separation, should be removed
 
 	dispatch_set(SSH2_MSG_CHANNEL_CLOSE, &channel_input_oclose);
 	dispatch_set(SSH2_MSG_CHANNEL_DATA, &channel_input_data);
@@ -1336,7 +1336,7 @@ client_init_dispatch_20(void)
 static void
 client_init_dispatch_13(void)
 {
-	dispatch_init_privileged(NULL); // ssh binary doesn't need the separation, should be removed
+	dispatch_init(NULL); // ssh binary doesn't need the separation, should be removed
 	dispatch_set(SSH_MSG_CHANNEL_CLOSE, &channel_input_close);
 	dispatch_set(SSH_MSG_CHANNEL_CLOSE_CONFIRMATION, &channel_input_close_confirmation);
 	dispatch_set(SSH_MSG_CHANNEL_DATA, &channel_input_data);
