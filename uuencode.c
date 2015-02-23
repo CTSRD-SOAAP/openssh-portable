@@ -26,7 +26,9 @@
 #include "xmalloc.h"
 #include "uuencode.h"
 
+#ifdef __FreeBSD__
 #include <resolv.h>
+#endif
 
 RCSID("$OpenBSD: uuencode.c,v 1.15 2002/03/04 17:27:39 stevesk Exp $");
 
