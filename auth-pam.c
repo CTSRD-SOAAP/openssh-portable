@@ -355,7 +355,7 @@ void finish_pam(void)
 }
 
 /* Start PAM authentication for specified account */
-void start_pam(const char *user)
+__soaap_privileged void start_pam(const char *user)
 {
 	int pam_retval;
 	extern ServerOptions options;
