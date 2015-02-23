@@ -119,8 +119,8 @@ userauth_gssapi(Authctxt *authctxt)
 	packet_send();
 	free(doid);
 
-	dispatch_set(SSH2_MSG_USERAUTH_GSSAPI_TOKEN, &input_gssapi_token);
-	dispatch_set(SSH2_MSG_USERAUTH_GSSAPI_ERRTOK, &input_gssapi_errtok);
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_GSSAPI_TOKEN, &input_gssapi_token);
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_GSSAPI_ERRTOK, &input_gssapi_errtok);
 	authctxt->postponed = 1;
 
 	return (0);
@@ -157,7 +157,7 @@ input_gssapi_token(int type, u_int32_t plen, void *ctxt)
 			packet_send();
 		}
 		authctxt->postponed = 0;
-		dispatch_set(SSH2_MSG_USERAUTH_GSSAPI_TOKEN, NULL);
+		dispatch_set_preauth(SSH2_MSG_USERAUTH_GSSAPI_TOKEN, NULL);
 		userauth_finish(authctxt, 0, "gssapi-with-mic", NULL);
 	} else {
 		if (send_tok.length != 0) {
@@ -166,12 +166,12 @@ input_gssapi_token(int type, u_int32_t plen, void *ctxt)
 			packet_send();
 		}
 		if (maj_status == GSS_S_COMPLETE) {
-			dispatch_set(SSH2_MSG_USERAUTH_GSSAPI_TOKEN, NULL);
+			dispatch_set_preauth(SSH2_MSG_USERAUTH_GSSAPI_TOKEN, NULL);
 			if (flags & GSS_C_INTEG_FLAG)
-				dispatch_set(SSH2_MSG_USERAUTH_GSSAPI_MIC,
+				dispatch_set_preauth(SSH2_MSG_USERAUTH_GSSAPI_MIC,
 				    &input_gssapi_mic);
 			else
-				dispatch_set(
+				dispatch_set_preauth(
 				    SSH2_MSG_USERAUTH_GSSAPI_EXCHANGE_COMPLETE,
 				    &input_gssapi_exchange_complete);
 		}
@@ -206,8 +206,8 @@ input_gssapi_errtok(int type, u_int32_t plen, void *ctxt)
 	free(recv_tok.value);
 
 	/* We can't return anything to the client, even if we wanted to */
-	dispatch_set(SSH2_MSG_USERAUTH_GSSAPI_TOKEN, NULL);
-	dispatch_set(SSH2_MSG_USERAUTH_GSSAPI_ERRTOK, NULL);
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_GSSAPI_TOKEN, NULL);
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_GSSAPI_ERRTOK, NULL);
 
 	/* The client will have already moved on to the next auth */
 
@@ -239,10 +239,10 @@ input_gssapi_exchange_complete(int type, u_int32_t plen, void *ctxt)
 	authenticated = PRIVSEP(ssh_gssapi_userok(authctxt->user));
 
 	authctxt->postponed = 0;
-	dispatch_set(SSH2_MSG_USERAUTH_GSSAPI_TOKEN, NULL);
-	dispatch_set(SSH2_MSG_USERAUTH_GSSAPI_ERRTOK, NULL);
-	dispatch_set(SSH2_MSG_USERAUTH_GSSAPI_MIC, NULL);
-	dispatch_set(SSH2_MSG_USERAUTH_GSSAPI_EXCHANGE_COMPLETE, NULL);
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_GSSAPI_TOKEN, NULL);
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_GSSAPI_ERRTOK, NULL);
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_GSSAPI_MIC, NULL);
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_GSSAPI_EXCHANGE_COMPLETE, NULL);
 	userauth_finish(authctxt, authenticated, "gssapi-with-mic", NULL);
 }
 
@@ -279,10 +279,10 @@ input_gssapi_mic(int type, u_int32_t plen, void *ctxt)
 	free(mic.value);
 
 	authctxt->postponed = 0;
-	dispatch_set(SSH2_MSG_USERAUTH_GSSAPI_TOKEN, NULL);
-	dispatch_set(SSH2_MSG_USERAUTH_GSSAPI_ERRTOK, NULL);
-	dispatch_set(SSH2_MSG_USERAUTH_GSSAPI_MIC, NULL);
-	dispatch_set(SSH2_MSG_USERAUTH_GSSAPI_EXCHANGE_COMPLETE, NULL);
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_GSSAPI_TOKEN, NULL);
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_GSSAPI_ERRTOK, NULL);
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_GSSAPI_MIC, NULL);
+	dispatch_set_preauth(SSH2_MSG_USERAUTH_GSSAPI_EXCHANGE_COMPLETE, NULL);
 	userauth_finish(authctxt, authenticated, "gssapi-with-mic", NULL);
 }
 

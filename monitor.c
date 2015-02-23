@@ -397,6 +397,20 @@ monitor_child_preauth(Authctxt *_authctxt, struct monitor *pmonitor)
 		__soaap_rpc_recv("preauth", MONITOR_REQ_AUTHPASSWORD, mm_answer_authpassword);
 #ifdef USE_PAM
 		__soaap_rpc_recv("preauth", MONITOR_REQ_PAM_START, mm_answer_pam_start);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_PAM_ACCOUNT, mm_answer_pam_account);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_PAM_INIT_CTX, mm_answer_pam_init_ctx);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_PAM_QUERY, mm_answer_pam_query);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_PAM_RESPOND, mm_answer_pam_respond);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_PAM_FREE_CTX, mm_answer_pam_free_ctx);
+#endif
+#ifdef SSH_AUDIT_EVENTS
+		__soaap_rpc_recv("preauth", MONITOR_REQ_AUDIT_EVENT, mm_answer_audit_event);
+#endif
+#ifdef GSSAPI
+		__soaap_rpc_recv("preauth", MONITOR_REQ_GSSSETUP, mm_answer_gss_setup_ctx);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_GSSSTEP, mm_answer_gss_accept_ctx);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_GSSUSEROK, mm_answer_gss_userok);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_GSSCHECKMIC, mm_answer_gss_checkmic);
 #endif
 #ifdef BSD_AUTH
 		__soaap_rpc_recv("preauth", MONITOR_REQ_BSDAUTHQUERY, mm_answer_bsdauthquery);
@@ -445,7 +459,7 @@ monitor_child_preauth(Authctxt *_authctxt, struct monitor *pmonitor)
 				Buffer m;
 
 				buffer_init(&m);
-				mm_request_receive_expect(pmonitor->m_sendfd,
+				mm_request_receive_expect("preauth", pmonitor->m_sendfd,
 				    MONITOR_REQ_PAM_ACCOUNT, &m);
 				authenticated = mm_answer_pam_account(pmonitor->m_sendfd, &m);
 				buffer_free(&m);
@@ -956,7 +970,7 @@ mm_answer_bsdauthquery(int sock, Buffer *m)
 		buffer_put_cstring(m, prompts[0]);
 
 	debug3("%s: sending challenge success: %u", __func__, success);
-	mm_request_send(sock, MONITOR_ANS_BSDAUTHQUERY, m);
+	mm_request_send("preauth", sock, MONITOR_ANS_BSDAUTHQUERY, m);
 
 	if (success) {
 		free(name);
@@ -1076,7 +1090,7 @@ mm_answer_pam_account(int sock, Buffer *m)
 	buffer_put_int(m, ret);
 	buffer_put_string(m, buffer_ptr(&loginmsg), buffer_len(&loginmsg));
 
-	mm_request_send(sock, MONITOR_ANS_PAM_ACCOUNT, m);
+	mm_request_send("preauth", sock, MONITOR_ANS_PAM_ACCOUNT, m);
 
 	return (ret);
 }
@@ -1099,7 +1113,7 @@ mm_answer_pam_init_ctx(int sock, Buffer *m)
 	} else {
 		buffer_put_int(m, 0);
 	}
-	mm_request_send(sock, MONITOR_ANS_PAM_INIT_CTX, m);
+	mm_request_send("preauth", sock, MONITOR_ANS_PAM_INIT_CTX, m);
 	return (0);
 }
 
@@ -1133,7 +1147,7 @@ mm_answer_pam_query(int sock, Buffer *m)
 	free(echo_on);
 	auth_method = "keyboard-interactive";
 	auth_submethod = "pam";
-	mm_request_send(sock, MONITOR_ANS_PAM_QUERY, m);
+	mm_request_send("preauth", sock, MONITOR_ANS_PAM_QUERY, m);
 	return (0);
 }
 
@@ -1160,7 +1174,7 @@ mm_answer_pam_respond(int sock, Buffer *m)
 	}
 	buffer_clear(m);
 	buffer_put_int(m, ret);
-	mm_request_send(sock, MONITOR_ANS_PAM_RESPOND, m);
+	mm_request_send("preauth", sock, MONITOR_ANS_PAM_RESPOND, m);
 	auth_method = "keyboard-interactive";
 	auth_submethod = "pam";
 	if (ret == 0)
@@ -1175,7 +1189,7 @@ mm_answer_pam_free_ctx(int sock, Buffer *m)
 	debug3("%s", __func__);
 	(sshpam_device.free_ctx)(sshpam_ctxt);
 	buffer_clear(m);
-	mm_request_send(sock, MONITOR_ANS_PAM_FREE_CTX, m);
+	mm_request_send("preauth", sock, MONITOR_ANS_PAM_FREE_CTX, m);
 	auth_method = "keyboard-interactive";
 	auth_submethod = "pam";
 	return (sshpam_authok == sshpam_ctxt);
@@ -1527,7 +1541,7 @@ mm_answer_pty(int sock, Buffer *m)
 	buffer_put_string(m, buffer_ptr(&loginmsg), buffer_len(&loginmsg));
 	buffer_clear(&loginmsg);
 
-	mm_request_send(sock, MONITOR_ANS_PTY, m);
+	mm_request_send("postauth", sock, MONITOR_ANS_PTY, m);
 
 	if (mm_send_fd(sock, s->ptyfd) == -1 ||
 	    mm_send_fd(sock, s->ttyfd) == -1)
@@ -2119,7 +2133,7 @@ mm_answer_gss_setup_ctx(int sock, Buffer *m)
 	buffer_clear(m);
 	buffer_put_int(m, major);
 
-	mm_request_send(sock, MONITOR_ANS_GSSSETUP, m);
+	mm_request_send("preauth", sock, MONITOR_ANS_GSSSETUP, m);
 
 	/* Now we have a context, enable the step */
 	monitor_permit(mon_dispatch, MONITOR_REQ_GSSSTEP, 1);
@@ -2145,7 +2159,7 @@ mm_answer_gss_accept_ctx(int sock, Buffer *m)
 	buffer_put_int(m, major);
 	buffer_put_string(m, out.value, out.length);
 	buffer_put_int(m, flags);
-	mm_request_send(sock, MONITOR_ANS_GSSSTEP, m);
+	mm_request_send("preauth", sock, MONITOR_ANS_GSSSTEP, m);
 
 	gss_release_buffer(&minor, &out);
 
@@ -2177,7 +2191,7 @@ mm_answer_gss_checkmic(int sock, Buffer *m)
 	buffer_clear(m);
 	buffer_put_int(m, ret);
 
-	mm_request_send(sock, MONITOR_ANS_GSSCHECKMIC, m);
+	mm_request_send("preauth", sock, MONITOR_ANS_GSSCHECKMIC, m);
 
 	if (!GSS_ERROR(ret))
 		monitor_permit(mon_dispatch, MONITOR_REQ_GSSUSEROK, 1);
@@ -2196,7 +2210,7 @@ mm_answer_gss_userok(int sock, Buffer *m)
 	buffer_put_int(m, authenticated);
 
 	debug3("%s: sending result %d", __func__, authenticated);
-	mm_request_send(sock, MONITOR_ANS_GSSUSEROK, m);
+	mm_request_send("preauth", sock, MONITOR_ANS_GSSUSEROK, m);
 
 	auth_method = "gssapi-with-mic";
 
