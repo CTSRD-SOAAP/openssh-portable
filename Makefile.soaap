@@ -13,6 +13,7 @@ CFLAGS=-cc1 -emit-llvm -g -fcolor-diagnostics
 CLANG?=$(LLVM_BUILD_DIR)/bin/clang
 LLVM_LINK?=$(LLVM_BUILD_DIR)/bin/llvm-link
 SOAAP?=$(SOAAP_BUILD_DIR)/bin/soaap
+SOAAP_OPTIONS?=
 
 .PHONY: all clean soaap soaap-linux soaap-all
 
@@ -37,7 +38,8 @@ all: sshd_executable.bc
 	@echo
 
 soaap: sshd_executable.bc
-	$(SOAAP) -o sshd.soaap $^ -soaap-syscall-traces
+	$(SOAAP) -o sshd.soaap $^ -soaap-infer-fp-targets -soaap-sandbox-platform=capsicum $(SOAAP_OPTIONS)
+
 soaap-linux: sshd_executable.bc
 	$(SOAAP) -o sshd.soaap $^ -soaap-sandbox-platform=seccomp -soaap-syscall-traces
 
