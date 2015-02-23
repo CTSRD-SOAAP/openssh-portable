@@ -1,15 +1,18 @@
 #TODO: check 7a2073c50b92c053594d48a651ebafae052a71ed (initial privsep)
 
 
-SOAAP_ROOT=$(CURDIR)/..
+SOAAP_ROOT?=$(CURDIR)/..
+LLVM_BUILD_DIR?=$(SOAAP_ROOT)/llvm/build
+SOAAP_BUILD_DIR?=$(SOAAP_ROOT)/soaap/build
+
 DEFINES=-DHAVE_CONFIG_H -D_GNU_SOURCE
 # for some reason we need to add /usr/include and the dir with stddef.h here
 INCLUDES=-isystem $(SOAAP_ROOT)/llvm/build/lib/clang/3.7.0/include/ -isystem /usr/include -I $(SOAAP_ROOT)/soaap/include/ -I .
 WARNINGS=-Wundef -Wno-conversion -Werror=implicit-function-declaration -Wno-incompatible-library-redeclaration -Wno-pointer-sign
 CFLAGS=-cc1 -emit-llvm -g -fcolor-diagnostics
-CLANG=$(SOAAP_ROOT)/llvm/build/bin/clang
-LLVM_LINK=$(SOAAP_ROOT)/llvm/build/bin/llvm-link
-SOAAP=$(SOAAP_ROOT)/soaap/build/bin/soaap
+CLANG?=$(LLVM_BUILD_DIR)/bin/clang
+LLVM_LINK?=$(LLVM_BUILD_DIR)/bin/llvm-link
+SOAAP?=$(SOAAP_BUILD_DIR)/bin/soaap
 
 .PHONY: all clean soaap soaap-linux soaap-all
 
