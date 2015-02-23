@@ -3852,6 +3852,7 @@ channel_send_window_changes(void)
  * Returns 0 and a suitable display number for the DISPLAY variable
  * stored in display_numberp , or -1 if an error occurs.
  */
+__soaap_vuln_fn("CVE-2008-1483") // fixed in 5f5cd746f357a87637a6a91605a44e1ed9a6dab1
 int
 x11_create_display_inet(int x11_display_offset, int x11_use_localhost,
     int single_connection, u_int *display_numberp, int **chanids)

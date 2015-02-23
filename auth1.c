@@ -346,6 +346,7 @@ do_authloop(Authctxt *authctxt)
 					msg[len] = '\0';
 			else
 				msg = "Access denied.";
+			__soaap_vuln_pt("fmt-string-773a7b98f9d4e0767dfdd270a339e9f31ca4edea")
 			packet_disconnect("%s", msg);
 		}
 #endif

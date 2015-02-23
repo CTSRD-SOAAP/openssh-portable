@@ -15,6 +15,8 @@
 #ifndef _MISC_H
 #define _MISC_H
 
+#include <soaap.h>
+
 /* Data structure for representing a forwarding request. */
 struct Forward {
 	char	 *listen_host;		/* Host (address) to listen on. */
@@ -69,6 +71,7 @@ struct arglist {
 	u_int   num;
 	u_int   nalloc;
 };
+__soaap_vuln_fn("CVE-2006-0225") // fixed in 3eec6b73a2c446225fce546d61d83cfc695fbaa0
 void	 addargs(arglist *, char *, ...)
 	     __attribute__((format(printf, 2, 3)));
 void	 replacearg(arglist *, u_int, char *, ...)
