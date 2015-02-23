@@ -39,7 +39,13 @@
 
 #define DISPATCH_MAX	255
 
-dispatch_fn *dispatch[DISPATCH_MAX];
+// SOAAP --soaap-infer-fp-targets currently infers all possible targets regardless of sandbox
+// to workaround this duplicate the table to create three distinct tables
+
+dispatch_fn *dispatch_privileged[DISPATCH_MAX];
+dispatch_fn *dispatch_preauth[DISPATCH_MAX];
+dispatch_fn *dispatch_postauth[DISPATCH_MAX];
+
 
 void
 dispatch_protocol_error(int type, u_int32_t seq, void *ctxt)
@@ -57,31 +63,59 @@ dispatch_protocol_ignore(int type, u_int32_t seq, void *ctxt)
 {
 	logit("dispatch_protocol_ignore: type %d seq %u", type, seq);
 }
+
+// privileged
 void
-dispatch_init(dispatch_fn *dflt)
+dispatch_init_preauth(dispatch_fn *dflt)
 {
 	u_int i;
 	for (i = 0; i < DISPATCH_MAX; i++)
-		dispatch[i] = dflt;
+		dispatch_preauth[i] = dflt;
 }
 void
-dispatch_range(u_int from, u_int to, dispatch_fn *fn)
+dispatch_init_postauth(dispatch_fn *dflt)
+{
+	u_int i;
+	for (i = 0; i < DISPATCH_MAX; i++)
+		dispatch_postauth[i] = dflt;
+}
+
+void
+dispatch_range_preauth(u_int from, u_int to, dispatch_fn *fn)
 {
 	u_int i;
 
 	for (i = from; i <= to; i++) {
 		if (i >= DISPATCH_MAX)
 			break;
-		dispatch[i] = fn;
+		dispatch_preauth[i] = fn;
 	}
 }
 void
-dispatch_set(int type, dispatch_fn *fn)
+dispatch_range_postauth(u_int from, u_int to, dispatch_fn *fn)
 {
-	dispatch[type] = fn;
+	u_int i;
+
+	for (i = from; i <= to; i++) {
+		if (i >= DISPATCH_MAX)
+			break;
+		dispatch_postauth[i] = fn;
+	}
+}
+
+void
+dispatch_set_preauth(int type, dispatch_fn *fn)
+{
+	dispatch_preauth[type] = fn;
 }
 void
-dispatch_run(int mode, volatile sig_atomic_t *done, void *ctxt)
+dispatch_set_postauth(int type, dispatch_fn *fn)
+{
+	dispatch_postauth[type] = fn;
+}
+
+void
+dispatch_run_preauth(int mode, volatile sig_atomic_t *done, void *ctxt)
 {
 	for (;;) {
 		int type;
@@ -94,8 +128,30 @@ dispatch_run(int mode, volatile sig_atomic_t *done, void *ctxt)
 			if (type == SSH_MSG_NONE)
 				return;
 		}
-		if (type > 0 && type < DISPATCH_MAX && dispatch[type] != NULL)
-			(*dispatch[type])(type, seqnr, ctxt);
+		if (type > 0 && type < DISPATCH_MAX && dispatch_preauth[type] != NULL)
+			(*dispatch_preauth[type])(type, seqnr, ctxt);
+		else
+			packet_disconnect("protocol error: rcvd type %d", type);
+		if (done != NULL && *done)
+			return;
+	}
+}
+void
+dispatch_run_postauth(int mode, volatile sig_atomic_t *done, void *ctxt)
+{
+	for (;;) {
+		int type;
+		u_int32_t seqnr;
+
+		if (mode == DISPATCH_BLOCK) {
+			type = packet_read_seqnr(&seqnr);
+		} else {
+			type = packet_read_poll_seqnr(&seqnr);
+			if (type == SSH_MSG_NONE)
+				return;
+		}
+		if (type > 0 && type < DISPATCH_MAX && dispatch_postauth[type] != NULL)
+			(*dispatch_postauth[type])(type, seqnr, ctxt);
 		else
 			packet_disconnect("protocol error: rcvd type %d", type);
 		if (done != NULL && *done)

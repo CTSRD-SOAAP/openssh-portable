@@ -43,7 +43,9 @@
 
 /* import */
 extern ServerOptions options;
-extern int use_privsep;
+// For our SOAAP analysis we want use_privsep to be always true:
+// extern int use_privsep;
+#define use_privsep PRIVSEP_ON
 
 /*
  * This function processes an rhosts-style file (.rhosts, .shosts, or

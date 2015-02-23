@@ -28,8 +28,15 @@
 #ifndef _MM_WRAP_H_
 #define _MM_WRAP_H_
 
-extern int use_privsep;
-#define PRIVSEP(x)	(use_privsep ? mm_##x : x)
+#include <soaap.h>
+
+// For our SOAAP analysis we want use_privsep to be always true:
+// extern int use_privsep;
+#define use_privsep PRIVSEP_ON
+
+// always call the mm_functions:
+// #define PRIVSEP(x)	(use_privsep ? mm_##x : x)
+#define PRIVSEP(x)	mm_##x
 
 enum mm_keytype {MM_NOKEY, MM_HOSTKEY, MM_USERKEY, MM_RSAHOSTKEY, MM_RSAUSERKEY};
 

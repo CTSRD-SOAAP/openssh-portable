@@ -59,7 +59,9 @@ static void add_listen_addr(ServerOptions *, char *, int);
 static void add_one_listen_addr(ServerOptions *, char *, int);
 
 /* Use of privilege separation or not */
-extern int use_privsep;
+// For our SOAAP analysis we want use_privsep to be always true:
+// extern int use_privsep;
+#define use_privsep PRIVSEP_ON
 extern Buffer cfg;
 
 /* Initializes the server options to their default values. */
@@ -313,8 +315,10 @@ fill_default_server_options(ServerOptions *options)
 	if (options->fwd_opts.streamlocal_bind_unlink == -1)
 		options->fwd_opts.streamlocal_bind_unlink = 0;
 	/* Turn privilege separation on by default */
-	if (use_privsep == -1)
-		use_privsep = PRIVSEP_NOSANDBOX;
+	if (use_privsep == -1) {
+		// For our SOAAP analysis we want use_privsep to be always true
+		// use_privsep = PRIVSEP_NOSANDBOX;
+	}
 
 #ifndef HAVE_MMAP
 	if (use_privsep && options->compression == 1) {
@@ -1253,10 +1257,11 @@ process_server_config_line(ServerOptions *options, char *line,
 		intptr = &options->allow_agent_forwarding;
 		goto parse_flag;
 
-	case sUsePrivilegeSeparation:
-		intptr = &use_privsep;
-		multistate_ptr = multistate_privsep;
-		goto parse_multistate;
+	//For our SOAAP analysis we want use_privsep to be always true
+	// 	case sUsePrivilegeSeparation:
+	// 		intptr = &use_privsep;
+	// 		multistate_ptr = multistate_privsep;
+	// 		goto parse_multistate;
 
 	case sAllowUsers:
 		while ((arg = strdelim(&cp)) && *arg != '\0') {

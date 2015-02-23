@@ -123,6 +123,8 @@
 #include "ssh-sandbox.h"
 #include "version.h"
 
+#include <soaap.h>
+
 #ifndef O_NOCTTY
 #define O_NOCTTY	0
 #endif
@@ -237,7 +239,9 @@ int *startup_pipes = NULL;
 int startup_pipe;		/* in child */
 
 /* variables used for privilege separation */
-int use_privsep = -1;
+// For our SOAAP analysis we want use_privsep to be always true:
+#define use_privsep PRIVSEP_ON
+// int use_privsep = -1;
 struct monitor *pmonitor = NULL;
 int privsep_is_preauth = 1;
 
@@ -252,6 +256,7 @@ Buffer loginmsg;
 
 /* Unprivileged user */
 struct passwd *privsep_pw = NULL;
+
 
 /* Prototypes for various functions defined later in this file. */
 void destroy_sensitive_data(void);
@@ -674,10 +679,10 @@ privsep_preauth(Authctxt *authctxt)
 			auth_conn = ssh_get_authentication_connection();
 		if (box != NULL)
 			ssh_sandbox_parent_preauth(box, pid);
-		monitor_child_preauth(authctxt, pmonitor);
+		monitor_child_preauth(authctxt, pmonitor); // wait for authentication
 
 		/* Sync memory */
-		monitor_sync(pmonitor);
+		monitor_sync(pmonitor); // sync state
 
 		/* Wait for the child's exit status */
 		while (waitpid(pid, &status, 0) < 0) {
@@ -697,7 +702,7 @@ privsep_preauth(Authctxt *authctxt)
 			    __func__, WTERMSIG(status));
 		if (box != NULL)
 			ssh_sandbox_parent_finish(box);
-		return 1;
+		return 1; // authenticated -> monitor returns 1 from this function
 	} else {
 		/* child */
 		close(pmonitor->m_sendfd);
@@ -713,7 +718,7 @@ privsep_preauth(Authctxt *authctxt)
 		if (box != NULL)
 			ssh_sandbox_child(box);
 
-		return 0;
+		return 0;  // preauth sandbox returns 0 from this function
 	}
 }
 
@@ -722,15 +727,16 @@ privsep_postauth(Authctxt *authctxt)
 {
 	u_int32_t rnd[256];
 
-#ifdef DISABLE_FD_PASSING
-	if (1) {
-#else
-	if (authctxt->pw->pw_uid == 0 || options.use_login) {
-#endif
-		/* File descriptor passing is broken or root login */
-		use_privsep = 0;
-		goto skip;
-	}
+// For our SOAAP analysis we want this branch to never be taken (it disables privsep) since we don't care about root login here
+// #ifdef DISABLE_FD_PASSING
+// 	if (1) {
+// #else
+// 	if (authctxt->pw->pw_uid == 0 || options.use_login) {
+// #endif
+// 		/* File descriptor passing is broken or root login */
+// 		use_privsep = 0;
+// 		goto skip;
+// 	}
 
 	/* New socket pair */
 	monitor_reinit(pmonitor);
@@ -1379,6 +1385,64 @@ server_accept_loop(int *sock_in, int *sock_out, int *newsock, int *config_s)
 			break;
 	}
 }
+// BEGIN: soaap workaround
+__soaap_sandbox_ephemeral("preauth") __attribute__((noreturn))
+static void soaap_preauth_sandbox_wrapper(Authctxt *authctxt) {
+	/* perform the key exchange */
+	/* authenticate user and start session */
+	if (compat20) {
+		do_ssh2_kex();
+		do_authentication2(authctxt);
+	} else {
+#ifdef WITH_SSH1
+		do_ssh1_kex();
+		do_authentication(authctxt);
+#else
+		fatal("ssh1 not supported");
+#endif
+	}
+	/*
+	 * If we use privilege separation, the unprivileged child transfers
+	 * the current keystate and exits
+	 */
+	if (use_privsep) {
+		mm_send_keystate(pmonitor);
+		exit(0);
+	}
+}
+
+__soaap_sandbox_ephemeral("postauth") __attribute__((noreturn))
+static void soaap_postauth_sandbox_wrapper(Authctxt* authctxt, const char* remote_ip) {
+	u_int64_t ibytes, obytes;
+
+	/* Start session. */
+	do_authenticated(authctxt);
+
+	/* The connection has been terminated. */
+	packet_get_state(MODE_IN, NULL, NULL, NULL, &ibytes);
+	packet_get_state(MODE_OUT, NULL, NULL, NULL, &obytes);
+	verbose("Transferred: sent %llu, received %llu bytes",
+	    (unsigned long long)obytes, (unsigned long long)ibytes);
+
+	verbose("Closing connection to %.500s port %d", remote_ip, remote_port);
+
+#ifdef USE_PAM
+	if (options.use_pam)
+		finish_pam();
+#endif /* USE_PAM */
+
+#ifdef SSH_AUDIT_EVENTS
+	PRIVSEP(audit_event(SSH_CONNECTION_CLOSE));
+#endif
+
+	packet_close();
+
+	if (use_privsep)
+		mm_terminate();
+
+	exit(0);
+}
+// end workaround
 
 
 /*
@@ -1396,7 +1460,6 @@ main(int ac, char **av)
 	char *line, *logfile = NULL;
 	int config_s[2] = { -1 , -1 };
 	u_int n;
-	u_int64_t ibytes, obytes;
 	mode_t new_umask;
 	Key *key;
 	Key *pubkey;
@@ -2098,27 +2161,10 @@ main(int ac, char **av)
 	} else if (compat20 && have_agent)
 		auth_conn = ssh_get_authentication_connection();
 
-	/* perform the key exchange */
-	/* authenticate user and start session */
-	if (compat20) {
-		do_ssh2_kex();
-		do_authentication2(authctxt);
-	} else {
-#ifdef WITH_SSH1
-		do_ssh1_kex();
-		do_authentication(authctxt);
-#else
-		fatal("ssh1 not supported");
-#endif
-	}
-	/*
-	 * If we use privilege separation, the unprivileged child transfers
-	 * the current keystate and exits
-	 */
-	if (use_privsep) {
-		mm_send_keystate(pmonitor);
-		exit(0);
-	}
+	// child process
+    //  __soaap_sandboxed_region_start("preauth");
+    soaap_preauth_sandbox_wrapper(authctxt); // work around __soaap_sandboxed_region_start/end not ending control flow of privileged process
+    //  __soaap_sandboxed_region_end("preauth");
 
  authenticated:
 	/*
@@ -2165,32 +2211,9 @@ main(int ac, char **av)
 	packet_set_timeout(options.client_alive_interval,
 	    options.client_alive_count_max);
 
-	/* Start session. */
-	do_authenticated(authctxt);
-
-	/* The connection has been terminated. */
-	packet_get_state(MODE_IN, NULL, NULL, NULL, &ibytes);
-	packet_get_state(MODE_OUT, NULL, NULL, NULL, &obytes);
-	verbose("Transferred: sent %llu, received %llu bytes",
-	    (unsigned long long)obytes, (unsigned long long)ibytes);
-
-	verbose("Closing connection to %.500s port %d", remote_ip, remote_port);
-
-#ifdef USE_PAM
-	if (options.use_pam)
-		finish_pam();
-#endif /* USE_PAM */
-
-#ifdef SSH_AUDIT_EVENTS
-	PRIVSEP(audit_event(SSH_CONNECTION_CLOSE));
-#endif
-
-	packet_close();
-
-	if (use_privsep)
-		mm_terminate();
-
-	exit(0);
+    //__soaap_sandboxed_region_start("postauth");
+	soaap_postauth_sandbox_wrapper(authctxt, remote_ip); // work around __soaap_sandboxed_region_start/end not ending control flow of privileged process
+	//__soaap_sandboxed_region_end("postauth");
 }
 
 #ifdef WITH_SSH1
@@ -2502,7 +2525,7 @@ do_ssh2_kex(void)
 
 	xxx_kex = kex;
 
-	dispatch_run(DISPATCH_BLOCK, &kex->done, kex);
+	dispatch_run_preauth(DISPATCH_BLOCK, &kex->done, kex);
 
 	session_id2 = kex->session_id;
 	session_id2_len = kex->session_id_len;
