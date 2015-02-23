@@ -162,7 +162,7 @@ auth_rhosts(struct passwd *pw, const char *client_user)
 	return auth_rhosts2(pw, client_user, hostname, ipaddr);
 }
 
-static int
+__soaap_privileged static int
 auth_rhosts2_raw(struct passwd *pw, const char *client_user, const char *hostname,
     const char *ipaddr)
 {
