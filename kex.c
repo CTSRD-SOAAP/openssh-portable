@@ -61,6 +61,8 @@ extern const EVP_MD *evp_ssh_sha256(void);
 # endif
 #endif
 
+#include <soaap.h>
+
 /* prototype */
 static void kex_kexinit_finish(Kex *);
 static void kex_choose_conf(Kex *);
@@ -224,7 +226,7 @@ kex_reset_dispatch(void)
 	dispatch_set(SSH2_MSG_KEXINIT, &kex_input_kexinit);
 }
 
-void
+__soaap_privileged void
 kex_finish(Kex *kex)
 {
 	kex_reset_dispatch();
