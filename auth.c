@@ -76,7 +76,9 @@
 
 /* import */
 extern ServerOptions options;
-extern int use_privsep;
+// For our SOAAP analysis we want use_privsep to be always true:
+// extern int use_privsep;
+#define use_privsep PRIVSEP_ON
 extern Buffer loginmsg;
 extern struct passwd *privsep_pw;
 

@@ -87,7 +87,9 @@ extern ServerOptions options;
 /* XXX */
 extern Kex *xxx_kex;
 extern Authctxt *the_authctxt;
-extern int use_privsep;
+// For our SOAAP analysis we want use_privsep to be always true:
+// extern int use_privsep;
+#define use_privsep PRIVSEP_ON
 
 static Buffer stdin_buffer;	/* Buffer for stdin data. */
 static Buffer stdout_buffer;	/* Buffer for stdout data. */
