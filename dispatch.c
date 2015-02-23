@@ -60,14 +60,6 @@ dispatch_protocol_ignore(int type, u_int32_t seq, void *ctxt)
 }
 
 // privileged
-
-void
-dispatch_init_privileged(dispatch_fn *dflt)
-{
-	u_int i;
-	for (i = 0; i < DISPATCH_MAX; i++)
-		dispatch_privileged[i] = dflt;
-}
 void
 dispatch_init_preauth(dispatch_fn *dflt)
 {
@@ -83,17 +75,6 @@ dispatch_init_postauth(dispatch_fn *dflt)
 		dispatch_postauth[i] = dflt;
 }
 
-void
-dispatch_range_privileged(u_int from, u_int to, dispatch_fn *fn)
-{
-	u_int i;
-
-	for (i = from; i <= to; i++) {
-		if (i >= DISPATCH_MAX)
-			break;
-		dispatch_privileged[i] = fn;
-	}
-}
 void
 dispatch_range_preauth(u_int from, u_int to, dispatch_fn *fn)
 {
@@ -118,11 +99,6 @@ dispatch_range_postauth(u_int from, u_int to, dispatch_fn *fn)
 }
 
 void
-dispatch_set_privileged(int type, dispatch_fn *fn)
-{
-	dispatch_privileged[type] = fn;
-}
-void
 dispatch_set_preauth(int type, dispatch_fn *fn)
 {
 	dispatch_preauth[type] = fn;
@@ -133,28 +109,6 @@ dispatch_set_postauth(int type, dispatch_fn *fn)
 	dispatch_postauth[type] = fn;
 }
 
-void
-dispatch_run_privileged(int mode, int *done, void *ctxt)
-{
-	for (;;) {
-		int type;
-		u_int32_t seqnr;
-
-		if (mode == DISPATCH_BLOCK) {
-			type = packet_read_seqnr(&seqnr);
-		} else {
-			type = packet_read_poll_seqnr(&seqnr);
-			if (type == SSH_MSG_NONE)
-				return;
-		}
-		if (type > 0 && type < DISPATCH_MAX && dispatch_privileged[type] != NULL)
-			(*dispatch_privileged[type])(type, seqnr, ctxt);
-		else
-			packet_disconnect("protocol error: rcvd type %d", type);
-		if (done != NULL && *done)
-			return;
-	}
-}
 void
 dispatch_run_preauth(int mode, int *done, void *ctxt)
 {

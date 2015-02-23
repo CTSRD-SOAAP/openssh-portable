@@ -31,20 +31,17 @@ enum {
 typedef void dispatch_fn(int, u_int32_t, void *);
 
 // TODO: remove
-// #define dispatch_set dispatch_set_privileged
-// #define dispatch_range dispatch_range_privileged
-// #define dispatch_run dispatch_run_privileged
+// #define dispatch_int dispatch_init_postauth
+// #define dispatch_set dispatch_set_postauth
+// #define dispatch_range dispatch_range_postauth
+// #define dispatch_run dispatch_run_postauth
 
-void	 dispatch_init_privileged(dispatch_fn *);
 void	 dispatch_init_preauth(dispatch_fn *);
 void	 dispatch_init_postauth(dispatch_fn *);
-void	 dispatch_set_privileged(int, dispatch_fn *);
 void	 dispatch_set_preauth(int, dispatch_fn *);
 void	 dispatch_set_postauth(int, dispatch_fn *);
-void	 dispatch_range_privileged(u_int, u_int, dispatch_fn *);
 void	 dispatch_range_preauth(u_int, u_int, dispatch_fn *);
 void	 dispatch_range_postauth(u_int, u_int, dispatch_fn *);
-void	 dispatch_run_privileged(int, int *, void *);
 void	 dispatch_run_preauth(int, int *, void *);
 void	 dispatch_run_postauth(int, int *, void *);
 
