@@ -1412,7 +1412,7 @@ static void soaap_preauth_sandbox_wrapper(Authctxt *authctxt) {
 }
 
 __soaap_sandbox_ephemeral("postauth") __attribute__((noreturn))
-static void soaap_postauth_sandbox_wrapper(Authctxt* authctxt, const char* remote_ip) {
+static void soaap_postauth_sandbox_wrapper(Authctxt* authctxt, const char* remote_ip, int remote_port) {
 	u_int64_t ibytes, obytes;
 
 	/* Start session. */
@@ -2212,7 +2212,7 @@ main(int ac, char **av)
 	    options.client_alive_count_max);
 
     //__soaap_sandboxed_region_start("postauth");
-	soaap_postauth_sandbox_wrapper(authctxt, remote_ip); // work around __soaap_sandboxed_region_start/end not ending control flow of privileged process
+	soaap_postauth_sandbox_wrapper(authctxt, remote_ip, remote_port); // work around __soaap_sandboxed_region_start/end not ending control flow of privileged process
 	//__soaap_sandboxed_region_end("postauth");
 }
 
