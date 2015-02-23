@@ -24,21 +24,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include <soaap.h>
-#include <unistd.h>
+
 /*
  * Ensure all of data on socket comes through. f==read || f==write
  */
-
-ssize_t	atomicio_impl(ssize_t (*f)() __soaap_fp(read, write), int fd, void * buf, size_t size);
-
-ssize_t atomicio_read(int fd, void * buf, size_t size);
-ssize_t atomicio_write(int fd, void * buf, size_t size);
-
-#ifndef COMBINE
-#define COMBINE1(X,Y) X##Y  // helper macro
-#define COMBINE(X,Y) COMBINE1(X,Y)
-#endif
-
-#define vwrite write
-#define atomicio(func, ...) COMBINE(atomicio_,func) (__VA_ARGS__)
+ssize_t	atomicio(ssize_t (*)(), int, void *, size_t);

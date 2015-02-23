@@ -27,22 +27,19 @@
 RCSID("$OpenBSD: atomicio.c,v 1.10 2001/05/08 22:48:07 markus Exp $");
 
 #include "atomicio.h"
-#include <soaap.h>
 
 /*
  * ensure all of data on socket comes through. f==read || f==write
  */
 ssize_t
-atomicio_impl(f2, fd, _s, n)
-	ssize_t (*f2) ();
+atomicio(f, fd, _s, n)
+	ssize_t (*f) ();
 	int fd;
 	void *_s;
 	size_t n;
 {
 	char *s = _s;
 	ssize_t res, pos = 0;
-	ssize_t (*f) () __soaap_fp(read, write) = f2;
-
 
 	while (n > pos) {
 		res = (f) (fd, s + pos, n - pos);
@@ -61,16 +58,4 @@ atomicio_impl(f2, fd, _s, n)
 		}
 	}
 	return (pos);
-}
-
-ssize_t atomicio_read(int fd, void * buf, size_t size) {
-	// just do a 0 byte read on fd so that SOAAP can detect the call since somhow the function pointer annotation won't work
-	read(fd, buf, 0);
-	return atomicio_impl(read, fd, buf, size);
-}
-
-ssize_t atomicio_write(int fd, void * buf, size_t size) {
-	// just do a 0 byte write on fd so that SOAAP can detect the call since somhow the function pointer annotation won't work
-	write(fd, buf, 0);
-	return atomicio_impl(write, fd, buf, size);
 }
