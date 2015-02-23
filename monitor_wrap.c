@@ -116,15 +116,15 @@ mm_log_handler(LogLevel level, const char *msg, void *ctx)
 	buffer_free(&log_msg);
 }
 
-int
-mm_is_monitor(void)
-{
-	/*
-	 * m_pid is only set in the privileged part, and
-	 * points to the unprivileged child.
-	 */
-	return (pmonitor && pmonitor->m_pid > 0);
-}
+// int
+// mm_is_monitor(void)
+// {
+// 	/*
+// 	 * m_pid is only set in the privileged part, and
+// 	 * points to the unprivileged child.
+// 	 */
+// 	return (pmonitor && pmonitor->m_pid > 0);
+// }
 
 void
 _mm_request_send(int sock, enum monitor_reqtype type, Buffer *m)

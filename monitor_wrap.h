@@ -45,7 +45,10 @@ struct mm_master;
 struct Authctxt;
 
 void mm_log_handler(LogLevel, const char *, void *);
-int mm_is_monitor(void);
+// int mm_is_monitor(void);
+// to reduce false positives in SOAAP define this to false
+#define mm_is_monitor() 0
+
 DH *mm_choose_dh(int, int, int);
 int mm_key_sign(Key *, u_char **, u_int *, u_char *, u_int);
 void mm_inform_authserv(char *, char *);
