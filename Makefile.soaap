@@ -59,14 +59,14 @@ SSHD_IR_FILES=sshd.ll auth-rhosts.ll auth-passwd.ll auth-rsa.ll auth-rh-rsa.ll \
 	sandbox-null.ll sandbox-rlimit.ll sandbox-systrace.ll sandbox-darwin.ll \
 	sandbox-seccomp-filter.ll sandbox-capsicum.ll
 
-OPENBSD_COMPAT_IR_FILES=openbsd-compat/base64.ll openbsd-compat/basename.ll openbsd-compat/bcrypt_pbkdf.ll openbsd-compat/bindresvport.ll \
+OPENBSD_COMPAT_IR_FILES=openbsd-compat/base64.ll openbsd-compat/basename.ll openbsd-compat/bindresvport.ll \
 	openbsd-compat/blowfish.ll openbsd-compat/daemon.ll openbsd-compat/dirname.ll openbsd-compat/fmt_scaled.ll openbsd-compat/getcwd.ll \
 	openbsd-compat/getgrouplist.ll openbsd-compat/getopt_long.ll openbsd-compat/getrrsetbyname.ll openbsd-compat/glob.ll \
 	openbsd-compat/inet_aton.ll openbsd-compat/inet_ntoa.ll openbsd-compat/inet_ntop.ll openbsd-compat/mktemp.ll openbsd-compat/pwcache.ll \
 	openbsd-compat/readpassphrase.ll openbsd-compat/realpath.ll openbsd-compat/rresvport.ll openbsd-compat/setenv.ll openbsd-compat/setproctitle.ll \
 	openbsd-compat/sha2.ll openbsd-compat/sigact.ll openbsd-compat/strlcat.ll openbsd-compat/strlcpy.ll openbsd-compat/strmode.ll \
 	openbsd-compat/strnlen.ll openbsd-compat/strptime.ll openbsd-compat/strsep.ll openbsd-compat/strtonum.ll openbsd-compat/strtoll.ll \
-	openbsd-compat/strtoul.ll openbsd-compat/strtoull.ll openbsd-compat/timingsafe_bcmp.ll openbsd-compat/vis.ll openbsd-compat/blowfish.ll \
+	openbsd-compat/strtoul.ll openbsd-compat/strtoull.ll openbsd-compat/timingsafe_bcmp.ll openbsd-compat/vis.ll \
 	openbsd-compat/bcrypt_pbkdf.ll openbsd-compat/explicit_bzero.ll openbsd-compat/arc4random.ll openbsd-compat/bsd-asprintf.ll \
 	openbsd-compat/bsd-closefrom.ll openbsd-compat/bsd-cray.ll openbsd-compat/bsd-cygwin_util.ll openbsd-compat/bsd-getpeereid.ll \
 	openbsd-compat/getrrsetbyname-ldns.ll openbsd-compat/bsd-misc.ll openbsd-compat/bsd-nextstep.ll openbsd-compat/bsd-openpty.ll \
