@@ -127,6 +127,7 @@ do_pam_conversation_kbd_int(int num_msg, const struct pam_message **msg,
 		return PAM_CONV_ERR;
 }
 
+__soaap_vuln_fn("CVE-2002-0639") // http://www.openssh.com/txt/preauth.adv
 void
 input_userauth_info_response_pam(int type, u_int32_t seqnr, void *ctxt)
 {

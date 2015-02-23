@@ -346,6 +346,7 @@ void do_pam_chauthtok(void)
 	}
 }
 
+#warning FIXME: start_pam is privileged, shouldn't finish_pam be as well (but there is no mm_finish_pam wrapper)?
 /* Cleanly shutdown PAM */
 void finish_pam(void)
 {
