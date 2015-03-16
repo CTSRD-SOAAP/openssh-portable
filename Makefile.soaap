@@ -38,7 +38,7 @@ all: sshd_executable.bc
 	@echo
 
 soaap: sshd_executable.bc
-	$(SOAAP) -o sshd.soaap $^ -soaap-infer-fp-targets -soaap-sandbox-platform=capsicum $(SOAAP_OPTIONS)
+	$(SOAAP) -o sshd.soaap $^ -soaap-infer-fp-targets -soaap-sandbox-platform=capsicum $(SOAAP_OPTIONS) -soaap-skip-global-variable-analysis
 
 soaap-linux: sshd_executable.bc
 	$(SOAAP) -o sshd.soaap $^ -soaap-sandbox-platform=seccomp -soaap-syscall-traces
