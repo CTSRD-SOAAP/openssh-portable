@@ -26,13 +26,15 @@
 #ifndef DH_H
 #define DH_H
 
+#include <soaap.h>
+
 struct dhgroup {
 	int size;
 	BIGNUM *g;
 	BIGNUM *p;
 };
 
-DH	*choose_dh(int, int, int);
+__soaap_privileged DH	*choose_dh(int, int, int);
 DH	*dh_new_group_asc(const char *, const char *);
 DH	*dh_new_group(BIGNUM *, BIGNUM *);
 DH	*dh_new_group1(void);

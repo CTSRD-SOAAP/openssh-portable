@@ -30,6 +30,8 @@
 #include "key.h"
 #include "buffer.h"
 
+#include <soaap.h>
+
 // For our SOAAP analysis we want use_privsep to be always true:
 // extern int use_privsep;
 #define use_privsep 1
