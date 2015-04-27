@@ -1464,9 +1464,11 @@ main(int ac, char **av)
 	 */
 	if (use_privsep) {
 		mm_send_keystate(pmonitor);
+        // must have end annotation before exit() since everything after this is flagged as unreachable
+        // because llvm adds an unreachable instr after exit()
+        __soaap_sandboxed_region_end("preauth");
 		exit(0);
 	}
-	__soaap_sandboxed_region_end("preauth");
 
  authenticated:
 	/*

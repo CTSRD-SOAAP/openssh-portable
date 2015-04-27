@@ -6,9 +6,9 @@ LLVM_LINK?=$(LLVM_BUILD_DIR)/bin/llvm-link
 
 SOAAP?=$(SOAAP_BUILD_DIR)/bin/soaap
 # TODO: remove -soaap-skip-global-variable-analysis in the future
-SOAAP_DEFAULT_OPTIONS?=-soaap-infer-fp-targets -soaap-sandbox-platform=capsicum -soaap-skip-global-variable-analysis
-SOAAP_EXTRA_OPTIONS?=
-SOAAP_FULL_ANALYSIS_OPTIONS?=-soaap-analyses=vulnerability,syscalls,privcalls,sandboxed,infoflow -soaap-list-fp-targets -soaap-list-sandboxed-funcs -soaap-dump-rpc-graph -soaap-output-traces=all
+SOAAP_DEFAULT_OPTIONS?=-soaap-infer-fp-targets -soaap-sandbox-platform=capsicum -soaap-analyses=vulnerability,syscalls,privcalls,sandboxed,infoflow
+SOAAP_OPTIONS?=
+SOAAP_FULL_ANALYSIS_OPTIONS?=-soaap-analyses=vulnerability,syscalls,privcalls,sandboxed,infoflow -soaap-list-fp-targets -soaap-list-sandboxed-funcs -soaap-dump-rpc-graph -soaap-output-traces=all -soaap-mode=all
 
 
 # if configure was called correctly plain make is sufficient
@@ -24,9 +24,9 @@ soaap: sshd_executable.bc
 soaap-json: sshd_executable.bc
 	$(SOAAP) -o sshd.soaap $^ $(SOAAP_DEFAULT_OPTIONS) $(SOAAP_OPTIONS) -soaap-report-output-formats=json
 soaap-all: sshd_executable.bc
-	$(SOAAP) -o sshd.soaap $^ $(SOAAP_DEFAULT_OPTIONS) $(SOAAP_FULL_ANALYSIS_OPTIONS)
+	$(SOAAP) -o sshd.soaap $^ $(SOAAP_DEFAULT_OPTIONS) $(SOAAP_OPTIONS) $(SOAAP_FULL_ANALYSIS_OPTIONS)
 soaap-all-json: sshd_executable.bc
-	$(SOAAP) -o sshd.soaap $^ $(SOAAP_DEFAULT_OPTIONS) $(SOAAP_FULL_ANALYSIS_OPTIONS) -soaap-report-output-formats=json
+	$(SOAAP) -o sshd.soaap $^ $(SOAAP_DEFAULT_OPTIONS) $(SOAAP_OPTIONS) $(SOAAP_FULL_ANALYSIS_OPTIONS) -soaap-report-output-formats=json
 
 clean:
 	rm -f *.bc openbsd-compat/*.bc sshd.soaap
