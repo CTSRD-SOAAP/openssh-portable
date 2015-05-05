@@ -2,13 +2,27 @@ SOAAP_ROOT?=$(CURDIR)/..
 LLVM_BUILD_DIR?=$(SOAAP_ROOT)/llvm/build
 SOAAP_BUILD_DIR?=$(SOAAP_ROOT)/soaap/build
 LLVM_LINK?=$(LLVM_BUILD_DIR)/bin/llvm-link
-
+BITCODE_LIBDIR?=/home/alex/devel/soaap/bitcode
 
 SOAAP?=$(SOAAP_BUILD_DIR)/bin/soaap
 # TODO: remove -soaap-skip-global-variable-analysis in the future
 SOAAP_DEFAULT_OPTIONS?=-soaap-infer-fp-targets -soaap-sandbox-platform=capsicum -soaap-analyses=vulnerability,syscalls,privcalls,sandboxed,infoflow
 SOAAP_OPTIONS?=
 SOAAP_FULL_ANALYSIS_OPTIONS?=-soaap-analyses=vulnerability,syscalls,privcalls,sandboxed,infoflow -soaap-list-fp-targets -soaap-list-sandboxed-funcs -soaap-dump-rpc-graph -soaap-output-traces=all -soaap-mode=all
+
+SSHD_REQUIRED_LIBS= \
+    $(BITCODE_LIBDIR)/libc.so.bc \
+    $(BITCODE_LIBDIR)/libutil.a.bc \
+    $(BITCODE_LIBDIR)/libcrypt.a.bc \
+    $(BITCODE_LIBDIR)/libz.so.bc \
+    $(BITCODE_LIBDIR)/libcrypto.so.bc \
+    $(BITCODE_LIBDIR)/libssl.so.bc \
+
+# adding opebsd-compat.a.bc -> multiple def of opterr
+#    openbsd-compat/libopenbsd-compat.a.bc
+# adding libssh.a.bc causes multiple def of log
+#    libssh.a.bc
+# TODO:causes erros?
 
 
 # if configure was called correctly plain make is sufficient
@@ -32,8 +46,7 @@ clean:
 	rm -f *.bc openbsd-compat/*.bc sshd.soaap
 
 sshd_executable.bc: sshd.bc libssh.a.bc openbsd-compat/libopenbsd-compat.a.bc
-	$(LLVM_LINK) -o $@ $^
-
+	$(LLVM_LINK) -o $@ $(SSHD_REQUIRED_LIBS)
 sshd.bc:
 	$(LLVM_IR_MAKE) sshd $(MAKEFLAGS)
 libssh.a.bc:
