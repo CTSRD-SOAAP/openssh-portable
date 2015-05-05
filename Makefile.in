@@ -158,7 +158,7 @@ $(CONFIGFILES): $(CONFIGFILES_IN)
 	$(FIXPATHSCMD) $(srcdir)/$${conffile} > $@
 
 clean:
-	rm -f *.o *.a $(TARGETS) logintest config.cache config.log 
+	rm -f *.o *.a $(TARGETS) logintest config.cache config.log *.bc
 	rm -f *.out core 
 	(cd openbsd-compat && $(MAKE) clean)
 
