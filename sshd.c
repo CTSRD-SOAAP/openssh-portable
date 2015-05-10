@@ -85,6 +85,8 @@ RCSID("$OpenBSD: sshd.c,v 1.260 2002/09/27 10:42:09 mickey Exp $");
 #include "monitor_wrap.h"
 #include "monitor_fdpass.h"
 
+#include <soaap.h>
+
 #ifdef LIBWRAP
 #include <tcpd.h>
 #include <syslog.h>
@@ -203,7 +205,9 @@ int startup_pipe;		/* in child */
 
 /* variables used for privilege separation */
 extern struct monitor *pmonitor;
-extern int use_privsep;
+// For our SOAAP analysis we want use_privsep to be always true:
+// extern int use_privsep;
+#define use_privsep 1
 
 /* Prototypes for various functions defined later in this file. */
 void destroy_sensitive_data(void);
@@ -597,11 +601,11 @@ privsep_preauth(void)
 		debug2("Network child is on pid %ld", (long)pid);
 
 		close(pmonitor->m_recvfd);
-		authctxt = monitor_child_preauth(pmonitor);
+		authctxt = monitor_child_preauth(pmonitor); // wait for authentication
 		close(pmonitor->m_sendfd);
 
 		/* Sync memory */
-		monitor_sync(pmonitor);
+		monitor_sync(pmonitor); // sync state
 
 		/* Wait for the child's exit status */
 		while (waitpid(pid, &status, 0) < 0)
@@ -611,10 +615,9 @@ privsep_preauth(void)
 		/* Reinstall, since the child has finished */
 		fatal_add_cleanup((void (*) (void *)) packet_close, NULL);
 
-		return (authctxt);
+		return (authctxt); // now authenticated
 	} else {
 		/* child */
-
 		close(pmonitor->m_sendfd);
 
 		/* Demote the child */
@@ -640,7 +643,8 @@ privsep_postauth(Authctxt *authctxt)
 #endif
 		/* File descriptor passing is broken or root login */
 		monitor_apply_keystate(pmonitor);
-		use_privsep = 0;
+		// For our SOAAP analysis we want use_privsep to be always true:
+		// use_privsep = 0;
 		return;
 	}
 
@@ -667,7 +671,6 @@ privsep_postauth(Authctxt *authctxt)
 		/* NEVERREACHED */
 		exit(0);
 	}
-
 	close(pmonitor->m_sendfd);
 
 	/* Demote the private keys to public keys. */
@@ -675,7 +678,6 @@ privsep_postauth(Authctxt *authctxt)
 
 	/* Drop privileges */
 	do_setusercontext(authctxt->pw);
-
 	/* It is safe now to apply the key state */
 	monitor_apply_keystate(pmonitor);
 }
@@ -1492,8 +1494,10 @@ main(int ac, char **av)
 
 	if (use_privsep)
 		if ((authctxt = privsep_preauth()) != NULL)
-			goto authenticated;
+			goto authenticated; // parent (<privileged>) only returns once authenticated
 
+	// child process
+	__soaap_sandboxed_region_start("preauth");
 	/* perform the key exchange */
 	/* authenticate user and start session */
 	if (compat20) {
@@ -1509,6 +1513,9 @@ main(int ac, char **av)
 	 */
 	if (use_privsep) {
 		mm_send_keystate(pmonitor);
+        // must have end annotation before exit() since everything after this is flagged as unreachable
+        // because llvm adds an unreachable instr after exit()
+        __soaap_sandboxed_region_end("preauth");
 		exit(0);
 	}
 
@@ -1523,6 +1530,7 @@ main(int ac, char **av)
 		if (!compat20)
 			destroy_sensitive_data();
 	}
+	__soaap_sandboxed_region_start("postauth");
 
 	/* Perform session preparation. */
 	do_authenticated(authctxt);
@@ -1539,6 +1547,7 @@ main(int ac, char **av)
 	if (use_privsep)
 		mm_terminate();
 
+	__soaap_sandboxed_region_end("postauth");
 	exit(0);
 }
 

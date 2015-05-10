@@ -26,7 +26,9 @@ RCSID("$OpenBSD: auth-rhosts.c,v 1.28 2002/05/13 21:26:49 markus Exp $");
 
 /* import */
 extern ServerOptions options;
-extern int use_privsep;
+// For our SOAAP analysis we want use_privsep to be always true:
+// extern int use_privsep;
+#define use_privsep 1
 
 /*
  * This function processes an rhosts-style file (.rhosts, .shosts, or
@@ -160,7 +162,7 @@ auth_rhosts(struct passwd *pw, const char *client_user)
 	return auth_rhosts2(pw, client_user, hostname, ipaddr);
 }
 
-static int
+__soaap_privileged static int
 auth_rhosts2_raw(struct passwd *pw, const char *client_user, const char *hostname,
     const char *ipaddr)
 {

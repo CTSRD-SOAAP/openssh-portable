@@ -46,7 +46,9 @@ static void add_one_listen_addr(ServerOptions *, char *, u_short);
 /* AF_UNSPEC or AF_INET or AF_INET6 */
 extern int IPv4or6;
 /* Use of privilege separation or not */
-extern int use_privsep;
+// For our SOAAP analysis we want use_privsep to be always true:
+// extern int use_privsep;
+#define use_privsep 1
 
 /* Initializes the server options to their default values. */
 
@@ -125,7 +127,8 @@ initialize_server_options(ServerOptions *options)
 	options->authorized_keys_file2 = NULL;
 
 	/* Needs to be accessable in many places */
-	use_privsep = -1;
+	// For our SOAAP analysis we want use_privsep to be always true
+	// use_privsep = -1;
 }
 
 void
@@ -257,8 +260,9 @@ fill_default_server_options(ServerOptions *options)
 		options->authorized_keys_file = _PATH_SSH_USER_PERMITTED_KEYS;
 
 	/* Turn privilege separation on by default */
-	if (use_privsep == -1)
-		use_privsep = 1;
+    // For our SOAAP analysis we want use_privsep to be a #define 1
+    // 	if (use_privsep == -1)
+    // 		use_privsep = 1;
 
 #ifndef HAVE_MMAP
 	if (use_privsep && options->compression == 1) {
@@ -763,9 +767,10 @@ parse_flag:
 		intptr = &options->allow_tcp_forwarding;
 		goto parse_flag;
 
-	case sUsePrivilegeSeparation:
-		intptr = &use_privsep;
-		goto parse_flag;
+	//For our SOAAP analysis we want use_privsep to be always true
+	//	case sUsePrivilegeSeparation:
+	//		intptr = &use_privsep;
+	//		goto parse_flag;
 
 	case sAllowUsers:
 		while ((arg = strdelim(&cp)) && *arg != '\0') {

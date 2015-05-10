@@ -174,8 +174,9 @@ static int do_pam_conversation(int num_msg, const struct pam_message **msg,
 	return PAM_SUCCESS;
 }
 
+// SOAAP: this should be static, there are no other users
 /* Called at exit to cleanly shutdown PAM */
-void do_pam_cleanup_proc(void *context)
+__soaap_privileged static void do_pam_cleanup_proc(void *context)
 {
 	int pam_retval = PAM_SUCCESS;
 
@@ -364,6 +365,7 @@ void do_pam_chauthtok(void)
 	}
 }
 
+#warning FIXME: start_pam is privileged, shouldn't finish_pam be as well (but there is no mm_finish_pam wrapper)?
 /* Cleanly shutdown PAM */
 void finish_pam(void)
 {
@@ -372,7 +374,7 @@ void finish_pam(void)
 }
 
 /* Start PAM authentication for specified account */
-void start_pam(const char *user)
+__soaap_privileged void start_pam(const char *user)
 {
 	int pam_retval;
 	extern ServerOptions options;

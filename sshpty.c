@@ -38,6 +38,14 @@ RCSID("$OpenBSD: sshpty.c,v 1.7 2002/06/24 17:57:20 deraadt Exp $");
 #define O_NOCTTY 0
 #endif
 
+
+#ifdef __FreeBSD__
+#include <termios.h>
+#include <libutil.h>
+#endif
+
+
+
 /*
  * Allocates and opens a pty.  Returns 0 if no pty could be allocated, or
  * nonzero if a pty was successfully allocated.  On success, open file
