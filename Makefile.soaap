@@ -2,7 +2,7 @@ SOAAP_ROOT?=$(CURDIR)/..
 LLVM_BUILD_DIR?=$(SOAAP_ROOT)/llvm/release-build
 SOAAP_BUILD_DIR?=$(SOAAP_ROOT)/soaap/release-build
 LLVM_LINK?=$(LLVM_BUILD_DIR)/bin/llvm-link
-BITCODE_LIBDIR?=/home/alex/devel/soaap/bitcode
+BITCODE_LIBDIR?=$(SOAAP_ROOT)/bitcode
 
 SOAAP?=$(SOAAP_BUILD_DIR)/bin/soaap
 # TODO: remove -soaap-skip-global-variable-analysis in the future
