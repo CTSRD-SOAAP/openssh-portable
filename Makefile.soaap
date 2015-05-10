@@ -1,6 +1,6 @@
 SOAAP_ROOT?=$(CURDIR)/..
-LLVM_BUILD_DIR?=$(SOAAP_ROOT)/llvm/release-build
-SOAAP_BUILD_DIR?=$(SOAAP_ROOT)/soaap/release-build
+LLVM_BUILD_DIR?=$(SOAAP_ROOT)/llvm/build
+SOAAP_BUILD_DIR?=$(SOAAP_ROOT)/soaap/build
 LLVM_LINK?=$(LLVM_BUILD_DIR)/bin/llvm-link
 BITCODE_LIBDIR?=$(SOAAP_ROOT)/bitcode
 
