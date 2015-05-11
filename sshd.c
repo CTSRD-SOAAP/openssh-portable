@@ -120,6 +120,8 @@
 #include "roaming.h"
 #include "version.h"
 
+#include <soaap.h>
+
 #ifdef LIBWRAP
 #include <tcpd.h>
 #include <syslog.h>
@@ -235,7 +237,9 @@ int *startup_pipes = NULL;
 int startup_pipe;		/* in child */
 
 /* variables used for privilege separation */
-int use_privsep = -1;
+// For our SOAAP analysis we want use_privsep to be always true:
+// int use_privsep = -1;
+#define use_privsep 1
 struct monitor *pmonitor = NULL;
 
 /* global authentication context */
@@ -631,20 +635,19 @@ privsep_preauth(Authctxt *authctxt)
 
 		close(pmonitor->m_recvfd);
 		pmonitor->m_pid = pid;
-		monitor_child_preauth(authctxt, pmonitor);
+		monitor_child_preauth(authctxt, pmonitor); // wait for authentication
 		close(pmonitor->m_sendfd);
 
 		/* Sync memory */
-		monitor_sync(pmonitor);
+		monitor_sync(pmonitor); // sync state
 
 		/* Wait for the child's exit status */
 		while (waitpid(pid, &status, 0) < 0)
 			if (errno != EINTR)
 				break;
-		return (1);
+		return (1); // now authenticated
 	} else {
 		/* child */
-
 		close(pmonitor->m_sendfd);
 
 		/* Demote the child */
@@ -666,7 +669,8 @@ privsep_postauth(Authctxt *authctxt)
 	if (authctxt->pw->pw_uid == 0 || options.use_login) {
 #endif
 		/* File descriptor passing is broken or root login */
-		use_privsep = 0;
+		// For our SOAAP analysis we want use_privsep to be always true:
+		// use_privsep = 0;
 		goto skip;
 	}
 
@@ -685,7 +689,6 @@ privsep_postauth(Authctxt *authctxt)
 		/* NEVERREACHED */
 		exit(0);
 	}
-
 	close(pmonitor->m_sendfd);
 
 	/* Demote the private keys to public keys. */
@@ -1851,8 +1854,10 @@ main(int ac, char **av)
 
 	if (use_privsep)
 		if (privsep_preauth(authctxt) == 1)
-			goto authenticated;
+			goto authenticated; // parent (<privileged>) only returns once authenticated
 
+	// child process
+	__soaap_sandboxed_region_start("preauth");
 	/* perform the key exchange */
 	/* authenticate user and start session */
 	if (compat20) {
@@ -1868,6 +1873,9 @@ main(int ac, char **av)
 	 */
 	if (use_privsep) {
 		mm_send_keystate(pmonitor);
+		// must have end annotation before exit() since everything after this is flagged as unreachable
+		// because llvm adds an unreachable instr after exit()
+		__soaap_sandboxed_region_end("preauth");
 		exit(0);
 	}
 
@@ -1912,6 +1920,7 @@ main(int ac, char **av)
 		if (!compat20)
 			destroy_sensitive_data();
 	}
+	__soaap_sandboxed_region_start("postauth");
 
 	packet_set_timeout(options.client_alive_interval,
 	    options.client_alive_count_max);
@@ -1940,6 +1949,7 @@ main(int ac, char **av)
 	if (use_privsep)
 		mm_terminate();
 
+	__soaap_sandboxed_region_end("postauth");
 	exit(0);
 }
 

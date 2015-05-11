@@ -28,6 +28,8 @@
 #ifndef _MONITOR_H_
 #define _MONITOR_H_
 
+#include <soaap.h>
+
 enum monitor_reqtype {
 	MONITOR_REQ_MODULI, MONITOR_ANS_MODULI,
 	MONITOR_REQ_FREE, MONITOR_REQ_AUTHSERV,
@@ -70,7 +72,7 @@ enum monitor_reqtype {
 
 struct mm_master;
 struct monitor {
-	int			 m_recvfd;
+	int			 m_recvfd __soaap_fd_permit(read,write);
 	int			 m_sendfd;
 	struct mm_master	*m_zback;
 	struct mm_master	*m_zlib;
@@ -78,20 +80,23 @@ struct monitor {
 	pid_t			 m_pid;
 };
 
-struct monitor *monitor_init(void);
-void monitor_reinit(struct monitor *);
-void monitor_sync(struct monitor *);
+__soaap_privileged struct monitor *monitor_init(void);
+__soaap_privileged void monitor_reinit(struct monitor *);
+__soaap_privileged void monitor_sync(struct monitor *);
 
 struct Authctxt;
-void monitor_child_preauth(struct Authctxt *, struct monitor *);
-void monitor_child_postauth(struct monitor *);
+__soaap_privileged void monitor_child_preauth(struct Authctxt *, struct monitor *);
+__soaap_privileged void monitor_child_postauth(struct monitor *);
 
 struct mon_table;
-int monitor_read(struct monitor*, struct mon_table *, struct mon_table **);
+__soaap_privileged int monitor_read(struct monitor*, struct mon_table *, struct mon_table **);
 
 /* Prototypes for request sending and receiving */
-void mm_request_send(int, enum monitor_reqtype, Buffer *);
+void _mm_request_send(int, enum monitor_reqtype, Buffer *);
 void mm_request_receive(int, Buffer *);
-void mm_request_receive_expect(int, enum monitor_reqtype, Buffer *);
+void _mm_request_receive_expect(int, enum monitor_reqtype, Buffer *);
+
+#define mm_request_send(receiver, fd, type, arg) do { __soaap_rpc_send_with_params(receiver, type, arg); _mm_request_send(fd, type, arg); } while(0)
+#define mm_request_receive_expect(sender, fd, type, arg) do { __soaap_rpc_recv_sync(sender, type); _mm_request_receive_expect(fd, type, arg); } while(0)
 
 #endif /* _MONITOR_H_ */
