@@ -719,6 +719,7 @@ mips-sony-bsd|mips-sony-newsos4)
 	    [Prepend the address family to IP tunnel traffic])
 	;;
 *-*-freebsd*)
+	LIBS="$LIBS -lutil"
 	check_for_libcrypt_later=1
 	AC_DEFINE([LOCKED_PASSWD_PREFIX], ["*LOCKED*"], [Account locked with pw(1)])
 	AC_DEFINE([SSH_TUN_FREEBSD], [1], [Open tunnel devices the FreeBSD way])
@@ -4290,6 +4291,8 @@ else
 fi
 AC_CHECK_DECL([BROKEN_GETADDRINFO],  [TEST_SSH_IPV6=no])
 AC_SUBST([TEST_SSH_IPV6], [$TEST_SSH_IPV6])
+
+CFLAGS="$CFLAGS -Werror=implicit-function-declaration -Wno-incompatible-library-redeclaration"
 
 AC_EXEEXT
 AC_CONFIG_FILES([Makefile buildpkg.sh opensshd.init openssh.xml \

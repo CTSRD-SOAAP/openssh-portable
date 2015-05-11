@@ -33,6 +33,8 @@
 #include <openssl/ec.h>
 #endif
 
+#include <soaap.h>
+
 typedef struct Key Key;
 enum types {
 	KEY_RSA1,
@@ -133,8 +135,8 @@ const char	*key_ssh_name(const Key *);
 const char	*key_ssh_name_plain(const Key *);
 int		 key_names_valid2(const char *);
 
-int	 key_sign(const Key *, u_char **, u_int *, const u_char *, u_int);
-int	 key_verify(const Key *, const u_char *, u_int, const u_char *, u_int);
+__soaap_privileged int	 key_sign(const Key *, u_char **, u_int *, const u_char *, u_int);
+__soaap_privileged int	 key_verify(const Key *, const u_char *, u_int, const u_char *, u_int);
 
 int	 ssh_dss_sign(const Key *, u_char **, u_int *, const u_char *, u_int);
 int	 ssh_dss_verify(const Key *, const u_char *, u_int, const u_char *, u_int);

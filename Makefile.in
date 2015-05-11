@@ -41,8 +41,8 @@ PATHS= -DSSHDIR=\"$(sysconfdir)\" \
 
 CC=@CC@
 LD=@LD@
-CFLAGS=@CFLAGS@
-CPPFLAGS=-I. -I$(srcdir) @CPPFLAGS@ $(PATHS) @DEFS@
+CFLAGS=@CFLAGS@ -Wno-pointer-sign
+CPPFLAGS=-I. -I$(srcdir) -isystem $(top_srcdir)/../soaap/include @CPPFLAGS@ $(PATHS) @DEFS@
 LIBS=@LIBS@
 SSHLIBS=@SSHLIBS@
 SSHDLIBS=@SSHDLIBS@
@@ -196,7 +196,7 @@ moduli:
 	echo
 
 clean:	regressclean
-	rm -f *.o *.a $(TARGETS) logintest config.cache config.log
+	rm -f *.o *.a $(TARGETS) logintest config.cache config.log *.bc
 	rm -f *.out core survey
 	(cd openbsd-compat && $(MAKE) clean)
 

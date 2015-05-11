@@ -74,7 +74,8 @@
 
 /* import */
 extern ServerOptions options;
-extern int use_privsep;
+// For SOAAP analysis use_privsep is a #define 1
+// extern int use_privsep;
 extern Buffer loginmsg;
 extern struct passwd *privsep_pw;
 

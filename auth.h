@@ -109,16 +109,16 @@ int
 auth_rhosts2(struct passwd *, const char *, const char *, const char *);
 
 int	 auth_rhosts_rsa(Authctxt *, char *, Key *);
-int      auth_password(Authctxt *, const char *);
+__soaap_privileged int      auth_password(Authctxt *, const char *);
 int      auth_rsa(Authctxt *, BIGNUM *);
 int      auth_rsa_challenge_dialog(Key *);
-BIGNUM	*auth_rsa_generate_challenge(Key *);
-int	 auth_rsa_verify_response(Key *, BIGNUM *, u_char[]);
-int	 auth_rsa_key_allowed(struct passwd *, BIGNUM *, Key **);
+__soaap_privileged BIGNUM	*auth_rsa_generate_challenge(Key *);
+__soaap_privileged int	 auth_rsa_verify_response(Key *, BIGNUM *, u_char[]);
+__soaap_privileged int	 auth_rsa_key_allowed(struct passwd *, BIGNUM *, Key **);
 
 int	 auth_rhosts_rsa_key_allowed(struct passwd *, char *, char *, Key *);
-int	 hostbased_key_allowed(struct passwd *, const char *, char *, Key *);
-int	 user_key_allowed(struct passwd *, Key *);
+__soaap_privileged int	 hostbased_key_allowed(struct passwd *, const char *, char *, Key *);
+__soaap_privileged int	 user_key_allowed(struct passwd *, Key *);
 
 #ifdef KRB5
 int	auth_krb5(Authctxt *authctxt, krb5_data *auth, char **client, krb5_data *);
@@ -147,7 +147,7 @@ void	userauth_finish(Authctxt *, int, char *);
 void	userauth_send_banner(const char *);
 int	auth_root_allowed(char *);
 
-char	*auth2_read_banner(void);
+__soaap_privileged char	*auth2_read_banner(void);
 
 void	privsep_challenge_enable(void);
 
@@ -162,7 +162,7 @@ void	auth2_jpake_get_pwdata(Authctxt *, BIGNUM **, char **, char **);
 void	auth2_jpake_stop(Authctxt *);
 
 int	allowed_user(struct passwd *);
-struct passwd * getpwnamallow(const char *user);
+__soaap_privileged struct passwd * getpwnamallow(const char *user);
 
 char	*get_challenge(Authctxt *);
 int	verify_response(Authctxt *, const char *);
@@ -184,7 +184,7 @@ Key	*get_hostkey_by_index(int);
 Key	*get_hostkey_public_by_type(int);
 Key	*get_hostkey_private_by_type(int);
 int	 get_hostkey_index(Key *);
-int	 ssh1_session_key(BIGNUM *);
+__soaap_privileged int	 ssh1_session_key(BIGNUM *);
 
 /* debug messages during authentication */
 void	 auth_debug_add(const char *fmt,...) __attribute__((format(printf, 1, 2)));
