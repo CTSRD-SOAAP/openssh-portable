@@ -9,7 +9,7 @@ VPATH=@srcdir@
 CC=@CC@
 LD=@LD@
 CFLAGS=@CFLAGS@
-CPPFLAGS=-I. -I.. -I$(srcdir) -I$(srcdir)/.. @CPPFLAGS@ @DEFS@
+CPPFLAGS=-I. -I.. -I$(srcdir) -I$(srcdir)/.. @CPPFLAGS@ @DEFS@ -D_GNU_SOURCE
 LIBS=@LIBS@
 AR=@AR@
 RANLIB=@RANLIB@
@@ -36,7 +36,7 @@ libopenbsd-compat.a:  $(COMPAT) $(OPENBSD) $(PORTS)
 	$(RANLIB) $@
 
 clean:
-	rm -f *.o *.a core 
+	rm -f *.o *.a core *.bc
 
 distclean: clean
 	rm -f Makefile *~

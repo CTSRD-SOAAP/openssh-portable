@@ -244,7 +244,7 @@ send_userauth_info_request(Authctxt *authctxt)
 	xfree(instr);
 	return 1;
 }
-
+__soaap_vuln_fn("CVE-2002-0639") // http://www.openssh.com/txt/preauth.adv
 static void
 input_userauth_info_response(int type, u_int32_t seq, void *ctxt)
 {

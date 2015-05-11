@@ -497,7 +497,7 @@ KbdintDevice mm_sshpam_device = {
 /*
  * This replaces auth-pam.c
  */
-void
+__soaap_privileged void
 start_pam(const char *user)
 {
 	if (!options.use_pam)
@@ -507,7 +507,7 @@ start_pam(const char *user)
 		fatal("PAM: initialisation failed");
 }
 
-void
+__soaap_privileged void
 finish_pam(void)
 {
 	fatal_remove_cleanup(sshpam_cleanup, NULL);
