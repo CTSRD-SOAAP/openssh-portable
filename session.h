@@ -26,6 +26,8 @@
 #ifndef SESSION_H
 #define SESSION_H
 
+#include <soaap.h>
+
 #define TTYSZ 64
 typedef struct Session Session;
 struct Session {
@@ -72,7 +74,7 @@ int	 session_input_channel_req(Channel *, const char *);
 void	 session_close_by_pid(pid_t, int);
 void	 session_close_by_channel(int, void *);
 void	 session_destroy_all(void (*)(Session *));
-void	 session_pty_cleanup2(Session *);
+__soaap_privileged void	 session_pty_cleanup2(Session *);
 
 Session	*session_new(void);
 Session	*session_by_tty(char *);

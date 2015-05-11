@@ -35,7 +35,9 @@
 
 #include "openbsd-compat/openbsd-compat.h"
 
-extern int use_privsep;
+// For SOAAP analysis use_privsep must be a #define 1
+// extern int use_privsep;
+#define use_privsep 1
 extern ServerOptions options;
 
 void

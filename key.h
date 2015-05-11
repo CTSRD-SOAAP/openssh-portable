@@ -26,6 +26,8 @@
 #ifndef KEY_H
 #define KEY_H
 
+#include <soaap.h>
+
 #include "sshkey.h"
 
 typedef struct sshkey Key;
@@ -89,8 +91,8 @@ int	 key_ec_validate_private(const EC_KEY *);
 Key	*key_from_blob(const u_char *, u_int);
 int	 key_to_blob(const Key *, u_char **, u_int *);
 
-int	 key_sign(const Key *, u_char **, u_int *, const u_char *, u_int);
-int	 key_verify(const Key *, const u_char *, u_int, const u_char *, u_int);
+__soaap_privileged int	 key_sign(const Key *, u_char **, u_int *, const u_char *, u_int);
+__soaap_privileged int	 key_verify(const Key *, const u_char *, u_int, const u_char *, u_int);
 
 void     key_private_serialize(const Key *, struct sshbuf *);
 Key	*key_private_deserialize(struct sshbuf *);

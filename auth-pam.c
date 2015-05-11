@@ -880,7 +880,7 @@ KbdintDevice mm_sshpam_device = {
 /*
  * This replaces auth-pam.c
  */
-void
+__soaap_privileged void
 start_pam(Authctxt *authctxt)
 {
 	if (!options.use_pam)
@@ -890,7 +890,7 @@ start_pam(Authctxt *authctxt)
 		fatal("PAM: initialisation failed");
 }
 
-void
+__soaap_privileged void
 finish_pam(void)
 {
 	sshpam_cleanup();
