@@ -129,7 +129,7 @@ mm_is_monitor(void)
 }
 
 void
-mm_request_send(int sock, enum monitor_reqtype type, Buffer *m)
+_mm_request_send(int sock, enum monitor_reqtype type, Buffer *m)
 {
 	u_int mlen = buffer_len(m);
 	u_char buf[5];
@@ -169,7 +169,7 @@ mm_request_receive(int sock, Buffer *m)
 }
 
 void
-mm_request_receive_expect(int sock, enum monitor_reqtype type, Buffer *m)
+_mm_request_receive_expect(int sock, enum monitor_reqtype type, Buffer *m)
 {
 	u_char rtype;
 
@@ -195,10 +195,10 @@ mm_choose_dh(int min, int nbits, int max)
 	buffer_put_int(&m, nbits);
 	buffer_put_int(&m, max);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_MODULI, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_MODULI, &m);
 
 	debug3("%s: waiting for MONITOR_ANS_MODULI", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_MODULI, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_MODULI, &m);
 
 	success = buffer_get_char(&m);
 	if (success == 0)
@@ -231,10 +231,10 @@ mm_key_sign(Key *key, u_char **sigp, u_int *lenp,
 	buffer_put_int(&m, kex->host_key_index(key, 0, active_state));
 	buffer_put_string(&m, data, datalen);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_SIGN, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_SIGN, &m);
 
 	debug3("%s: waiting for MONITOR_ANS_SIGN", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_SIGN, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_SIGN, &m);
 	*sigp  = buffer_get_string(&m, lenp);
 	buffer_free(&m);
 
@@ -254,10 +254,10 @@ mm_getpwnamallow(const char *username)
 	buffer_init(&m);
 	buffer_put_cstring(&m, username);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PWNAM, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PWNAM, &m);
 
 	debug3("%s: waiting for MONITOR_ANS_PWNAM", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_PWNAM, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_PWNAM, &m);
 
 	if (buffer_get_char(&m) == 0) {
 		pw = NULL;
@@ -313,10 +313,10 @@ mm_auth2_read_banner(void)
 	debug3("%s entering", __func__);
 
 	buffer_init(&m);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_AUTH2_READ_BANNER, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_AUTH2_READ_BANNER, &m);
 	buffer_clear(&m);
 
-	mm_request_receive_expect(pmonitor->m_recvfd,
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd,
 	    MONITOR_ANS_AUTH2_READ_BANNER, &m);
 	banner = buffer_get_string(&m, NULL);
 	buffer_free(&m);
@@ -342,7 +342,7 @@ mm_inform_authserv(char *service, char *style)
 	buffer_put_cstring(&m, service);
 	buffer_put_cstring(&m, style ? style : "");
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_AUTHSERV, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_AUTHSERV, &m);
 
 	buffer_free(&m);
 }
@@ -358,10 +358,10 @@ mm_auth_password(Authctxt *authctxt, char *password)
 
 	buffer_init(&m);
 	buffer_put_cstring(&m, password);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_AUTHPASSWORD, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_AUTHPASSWORD, &m);
 
 	debug3("%s: waiting for MONITOR_ANS_AUTHPASSWORD", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_AUTHPASSWORD, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_AUTHPASSWORD, &m);
 
 	authenticated = buffer_get_int(&m);
 
@@ -418,10 +418,10 @@ mm_key_allowed(enum mm_keytype type, char *user, char *host, Key *key)
 	buffer_put_string(&m, blob, len);
 	free(blob);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_KEYALLOWED, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_KEYALLOWED, &m);
 
 	debug3("%s: waiting for MONITOR_ANS_KEYALLOWED", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_KEYALLOWED, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_KEYALLOWED, &m);
 
 	allowed = buffer_get_int(&m);
 
@@ -461,10 +461,10 @@ mm_key_verify(Key *key, u_char *sig, u_int siglen, u_char *data, u_int datalen)
 	buffer_put_string(&m, data, datalen);
 	free(blob);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_KEYVERIFY, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_KEYVERIFY, &m);
 
 	debug3("%s: waiting for MONITOR_ANS_KEYVERIFY", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_KEYVERIFY, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_KEYVERIFY, &m);
 
 	verified = buffer_get_int(&m);
 
@@ -485,7 +485,7 @@ mm_send_keystate(struct monitor *monitor)
 	if ((r = ssh_packet_get_state(ssh, m)) != 0)
 		fatal("%s: get_state failed: %s",
 		    __func__, ssh_err(r));
-	mm_request_send(monitor->m_recvfd, MONITOR_REQ_KEYEXPORT, m);
+	mm_request_send("<privileged>",  monitor->m_recvfd, MONITOR_REQ_KEYEXPORT, m);
 	debug3("%s: Finished sending state", __func__);
 	sshbuf_free(m);
 }
@@ -511,10 +511,10 @@ mm_pty_allocate(int *ptyfd, int *ttyfd, char *namebuf, size_t namebuflen)
 	close(tmp2);
 
 	buffer_init(&m);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PTY, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PTY, &m);
 
 	debug3("%s: waiting for MONITOR_ANS_PTY", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_PTY, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_PTY, &m);
 
 	success = buffer_get_int(&m);
 	if (success == 0) {
@@ -549,7 +549,7 @@ mm_session_pty_cleanup2(Session *s)
 		return;
 	buffer_init(&m);
 	buffer_put_cstring(&m, s->tty);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PTYCLEANUP, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PTYCLEANUP, &m);
 	buffer_free(&m);
 
 	/* closed dup'ed master */
@@ -572,7 +572,7 @@ mm_start_pam(Authctxt *authctxt)
 		fatal("UsePAM=no, but ended up in %s anyway", __func__);
 
 	buffer_init(&m);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_START, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_START, &m);
 
 	buffer_free(&m);
 }
@@ -589,9 +589,9 @@ mm_do_pam_account(void)
 		fatal("UsePAM=no, but ended up in %s anyway", __func__);
 
 	buffer_init(&m);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_ACCOUNT, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_ACCOUNT, &m);
 
-	mm_request_receive_expect(pmonitor->m_recvfd,
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd,
 	    MONITOR_ANS_PAM_ACCOUNT, &m);
 	ret = buffer_get_int(&m);
 	msg = buffer_get_string(&m, NULL);
@@ -614,9 +614,9 @@ mm_sshpam_init_ctx(Authctxt *authctxt)
 	debug3("%s", __func__);
 	buffer_init(&m);
 	buffer_put_cstring(&m, authctxt->user);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_INIT_CTX, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_INIT_CTX, &m);
 	debug3("%s: waiting for MONITOR_ANS_PAM_INIT_CTX", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_PAM_INIT_CTX, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_PAM_INIT_CTX, &m);
 	success = buffer_get_int(&m);
 	if (success == 0) {
 		debug3("%s: pam_init_ctx failed", __func__);
@@ -637,9 +637,9 @@ mm_sshpam_query(void *ctx, char **name, char **info,
 
 	debug3("%s", __func__);
 	buffer_init(&m);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_QUERY, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_QUERY, &m);
 	debug3("%s: waiting for MONITOR_ANS_PAM_QUERY", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_PAM_QUERY, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_PAM_QUERY, &m);
 	ret = buffer_get_int(&m);
 	debug3("%s: pam_query returned %d", __func__, ret);
 	*name = buffer_get_string(&m, NULL);
@@ -670,9 +670,9 @@ mm_sshpam_respond(void *ctx, u_int num, char **resp)
 	buffer_put_int(&m, num);
 	for (i = 0; i < num; ++i)
 		buffer_put_cstring(&m, resp[i]);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_RESPOND, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_RESPOND, &m);
 	debug3("%s: waiting for MONITOR_ANS_PAM_RESPOND", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_PAM_RESPOND, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_PAM_RESPOND, &m);
 	ret = buffer_get_int(&m);
 	debug3("%s: pam_respond returned %d", __func__, ret);
 	buffer_free(&m);
@@ -686,9 +686,9 @@ mm_sshpam_free_ctx(void *ctxtp)
 
 	debug3("%s", __func__);
 	buffer_init(&m);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_FREE_CTX, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_FREE_CTX, &m);
 	debug3("%s: waiting for MONITOR_ANS_PAM_FREE_CTX", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_PAM_FREE_CTX, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_PAM_FREE_CTX, &m);
 	buffer_free(&m);
 }
 #endif /* USE_PAM */
@@ -701,7 +701,7 @@ mm_terminate(void)
 	Buffer m;
 
 	buffer_init(&m);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_TERM, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_TERM, &m);
 	buffer_free(&m);
 }
 
@@ -714,9 +714,9 @@ mm_ssh1_session_key(BIGNUM *num)
 
 	buffer_init(&m);
 	buffer_put_bignum2(&m, num);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_SESSKEY, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_SESSKEY, &m);
 
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_SESSKEY, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_SESSKEY, &m);
 
 	rsafail = buffer_get_int(&m);
 	buffer_get_bignum2(&m, num);
@@ -750,9 +750,9 @@ mm_bsdauth_query(void *ctx, char **name, char **infotxt,
 	debug3("%s: entering", __func__);
 
 	buffer_init(&m);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_BSDAUTHQUERY, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_BSDAUTHQUERY, &m);
 
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_BSDAUTHQUERY,
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_BSDAUTHQUERY,
 	    &m);
 	success = buffer_get_int(&m);
 	if (success == 0) {
@@ -785,9 +785,9 @@ mm_bsdauth_respond(void *ctx, u_int numresponses, char **responses)
 
 	buffer_init(&m);
 	buffer_put_cstring(&m, responses[0]);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_BSDAUTHRESPOND, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_BSDAUTHRESPOND, &m);
 
-	mm_request_receive_expect(pmonitor->m_recvfd,
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd,
 	    MONITOR_ANS_BSDAUTHRESPOND, &m);
 
 	authok = buffer_get_int(&m);
@@ -808,9 +808,9 @@ mm_skey_query(void *ctx, char **name, char **infotxt,
 	debug3("%s: entering", __func__);
 
 	buffer_init(&m);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_SKEYQUERY, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_SKEYQUERY, &m);
 
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_SKEYQUERY,
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_SKEYQUERY,
 	    &m);
 	success = buffer_get_int(&m);
 	if (success == 0) {
@@ -845,9 +845,9 @@ mm_skey_respond(void *ctx, u_int numresponses, char **responses)
 
 	buffer_init(&m);
 	buffer_put_cstring(&m, responses[0]);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_SKEYRESPOND, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_SKEYRESPOND, &m);
 
-	mm_request_receive_expect(pmonitor->m_recvfd,
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd,
 	    MONITOR_ANS_SKEYRESPOND, &m);
 
 	authok = buffer_get_int(&m);
@@ -869,7 +869,7 @@ mm_ssh1_session_id(u_char session_id[16])
 	for (i = 0; i < 16; i++)
 		buffer_put_char(&m, session_id[i]);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_SESSID, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_SESSID, &m);
 	buffer_free(&m);
 }
 
@@ -888,8 +888,8 @@ mm_auth_rsa_key_allowed(struct passwd *pw, BIGNUM *client_n, Key **rkey)
 	buffer_init(&m);
 	buffer_put_bignum2(&m, client_n);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_RSAKEYALLOWED, &m);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_RSAKEYALLOWED, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_RSAKEYALLOWED, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_RSAKEYALLOWED, &m);
 
 	allowed = buffer_get_int(&m);
 
@@ -932,8 +932,8 @@ mm_auth_rsa_generate_challenge(Key *key)
 	buffer_put_string(&m, blob, blen);
 	free(blob);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_RSACHALLENGE, &m);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_RSACHALLENGE, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_RSACHALLENGE, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_RSACHALLENGE, &m);
 
 	buffer_get_bignum2(&m, challenge);
 	buffer_free(&m);
@@ -961,8 +961,8 @@ mm_auth_rsa_verify_response(Key *key, BIGNUM *p, u_char response[16])
 	buffer_put_string(&m, response, 16);
 	free(blob);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_RSARESPONSE, &m);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_RSARESPONSE, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_RSARESPONSE, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_RSARESPONSE, &m);
 
 	success = buffer_get_int(&m);
 	buffer_free(&m);

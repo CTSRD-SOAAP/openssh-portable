@@ -117,16 +117,16 @@ int
 auth_rhosts2(struct passwd *, const char *, const char *, const char *);
 
 int	 auth_rhosts_rsa(Authctxt *, char *, Key *);
-int      auth_password(Authctxt *, const char *);
+__soaap_privileged int      auth_password(Authctxt *, const char *);
 int      auth_rsa(Authctxt *, BIGNUM *);
 int      auth_rsa_challenge_dialog(Key *);
-BIGNUM	*auth_rsa_generate_challenge(Key *);
-int	 auth_rsa_verify_response(Key *, BIGNUM *, u_char[]);
-int	 auth_rsa_key_allowed(struct passwd *, BIGNUM *, Key **);
+__soaap_privileged BIGNUM	*auth_rsa_generate_challenge(Key *);
+__soaap_privileged int	 auth_rsa_verify_response(Key *, BIGNUM *, u_char[]);
+__soaap_privileged int	 auth_rsa_key_allowed(struct passwd *, BIGNUM *, Key **);
 
 int	 auth_rhosts_rsa_key_allowed(struct passwd *, char *, char *, Key *);
-int	 hostbased_key_allowed(struct passwd *, const char *, char *, Key *);
-int	 user_key_allowed(struct passwd *, Key *);
+__soaap_privileged int	 hostbased_key_allowed(struct passwd *, const char *, char *, Key *);
+__soaap_privileged int	 user_key_allowed(struct passwd *, Key *);
 void	 pubkey_auth_info(Authctxt *, const Key *, const char *, ...)
 	    __attribute__((__format__ (printf, 3, 4)));
 void	 auth2_record_userkey(Authctxt *, struct sshkey *);
@@ -168,7 +168,7 @@ int	auth_root_allowed(const char *);
 
 void	userauth_send_banner(const char *);
 
-char	*auth2_read_banner(void);
+__soaap_privileged char	*auth2_read_banner(void);
 int	 auth2_methods_valid(const char *, int);
 int	 auth2_update_methods_lists(Authctxt *, const char *, const char *);
 int	 auth2_setup_methods_lists(Authctxt *);
@@ -184,7 +184,7 @@ int	skey_query(void *, char **, char **, u_int *, char ***, u_int **);
 int	skey_respond(void *, u_int, char **);
 
 int	allowed_user(struct passwd *);
-struct passwd * getpwnamallow(const char *user);
+__soaap_privileged struct passwd * getpwnamallow(const char *user);
 
 char	*get_challenge(Authctxt *);
 int	verify_response(Authctxt *, const char *);
@@ -207,7 +207,7 @@ Key	*get_hostkey_public_by_index(int, struct ssh *);
 Key	*get_hostkey_public_by_type(int, int, struct ssh *);
 Key	*get_hostkey_private_by_type(int, int, struct ssh *);
 int	 get_hostkey_index(Key *, int, struct ssh *);
-int	 ssh1_session_key(BIGNUM *);
+__soaap_privileged int	 ssh1_session_key(BIGNUM *);
 int	 sshd_hostkey_sign(Key *, Key *, u_char **, size_t *,
 	     const u_char *, size_t, u_int);
 

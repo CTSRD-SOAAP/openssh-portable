@@ -85,7 +85,10 @@ extern ServerOptions options;
 
 /* XXX */
 extern Authctxt *the_authctxt;
-extern int use_privsep;
+
+// extern int use_privsep;
+// for SOAAP analysis use_privsep must be always 1
+#define use_privsep 1
 
 static Buffer stdin_buffer;	/* Buffer for stdin data. */
 static Buffer stdout_buffer;	/* Buffer for stdout data. */
