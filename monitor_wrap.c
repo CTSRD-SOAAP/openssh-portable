@@ -697,9 +697,9 @@ mm_do_pam_account(void)
 		fatal("UsePAM=no, but ended up in %s anyway", __func__);
 
 	buffer_init(&m);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_ACCOUNT, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_ACCOUNT, &m);
 
-	mm_request_receive_expect(pmonitor->m_recvfd, 
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd,
 	    MONITOR_ANS_PAM_ACCOUNT, &m);
 	ret = buffer_get_int(&m);
 
@@ -719,9 +719,9 @@ mm_sshpam_init_ctx(Authctxt *authctxt)
 	debug3("%s", __func__);
 	buffer_init(&m);
 	buffer_put_cstring(&m, authctxt->user);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_INIT_CTX, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_INIT_CTX, &m);
 	debug3("%s: waiting for MONITOR_ANS_PAM_INIT_CTX", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_PAM_INIT_CTX, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_PAM_INIT_CTX, &m);
 	success = buffer_get_int(&m);
 	if (success == 0) {
 		debug3("%s: pam_init_ctx failed", __func__);
@@ -741,9 +741,9 @@ mm_sshpam_query(void *ctx, char **name, char **info,
 
 	debug3("%s", __func__);
 	buffer_init(&m);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_QUERY, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_QUERY, &m);
 	debug3("%s: waiting for MONITOR_ANS_PAM_QUERY", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_PAM_QUERY, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_PAM_QUERY, &m);
 	ret = buffer_get_int(&m);
 	debug3("%s: pam_query returned %d", __func__, ret);
 	*name = buffer_get_string(&m, NULL);
@@ -770,9 +770,9 @@ mm_sshpam_respond(void *ctx, u_int num, char **resp)
 	buffer_put_int(&m, num);
 	for (i = 0; i < num; ++i)
 		buffer_put_cstring(&m, resp[i]);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_RESPOND, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_RESPOND, &m);
 	debug3("%s: waiting for MONITOR_ANS_PAM_RESPOND", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_PAM_RESPOND, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_PAM_RESPOND, &m);
 	ret = buffer_get_int(&m);
 	debug3("%s: pam_respond returned %d", __func__, ret);
 	buffer_free(&m);
@@ -786,9 +786,9 @@ mm_sshpam_free_ctx(void *ctxtp)
 
 	debug3("%s", __func__);
 	buffer_init(&m);
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_PAM_FREE_CTX, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_PAM_FREE_CTX, &m);
 	debug3("%s: waiting for MONITOR_ANS_PAM_FREE_CTX", __func__);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_PAM_FREE_CTX, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_PAM_FREE_CTX, &m);
 	buffer_free(&m);
 }
 #endif /* USE_PAM */

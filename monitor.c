@@ -346,7 +346,7 @@ monitor_child_preauth(struct monitor *pmonitor)
 				Buffer m;
 
 				buffer_init(&m);
-				mm_request_receive_expect(pmonitor->m_sendfd, 
+				mm_request_receive_expect("preauth", pmonitor->m_sendfd,
 				    MONITOR_REQ_PAM_ACCOUNT, &m);
 				authenticated = mm_answer_pam_account(pmonitor->m_sendfd, &m);
 				buffer_free(&m);
@@ -858,7 +858,7 @@ mm_answer_pam_account(int socket, Buffer *m)
 
 	buffer_put_int(m, ret);
 
-	mm_request_send(socket, MONITOR_ANS_PAM_ACCOUNT, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_PAM_ACCOUNT, m);
 
 	return (ret);
 }
@@ -881,7 +881,7 @@ mm_answer_pam_init_ctx(int socket, Buffer *m)
 	} else {
 		buffer_put_int(m, 0);
 	}
-	mm_request_send(socket, MONITOR_ANS_PAM_INIT_CTX, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_PAM_INIT_CTX, m);
 	return (0);
 }
 
@@ -915,7 +915,7 @@ mm_answer_pam_query(int socket, Buffer *m)
 		xfree(prompts);
 	if (echo_on != NULL)
 		xfree(echo_on);
-	mm_request_send(socket, MONITOR_ANS_PAM_QUERY, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_PAM_QUERY, m);
 	return (0);
 }
 
@@ -942,7 +942,7 @@ mm_answer_pam_respond(int socket, Buffer *m)
 	}
 	buffer_clear(m);
 	buffer_put_int(m, ret);
-	mm_request_send(socket, MONITOR_ANS_PAM_RESPOND, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_PAM_RESPOND, m);
 	auth_method = "keyboard-interactive/pam";
 	if (ret == 0)
 		sshpam_authok = sshpam_ctxt;
@@ -956,7 +956,7 @@ mm_answer_pam_free_ctx(int socket, Buffer *m)
 	debug3("%s", __func__);
 	(sshpam_device.free_ctx)(sshpam_ctxt);
 	buffer_clear(m);
-	mm_request_send(socket, MONITOR_ANS_PAM_FREE_CTX, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_PAM_FREE_CTX, m);
 	return (sshpam_authok == sshpam_ctxt);
 }
 #endif
