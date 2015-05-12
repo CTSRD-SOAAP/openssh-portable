@@ -2713,8 +2713,8 @@ auth_sock_cleanup_proc(void *_pw)
 
 	if (auth_sock_name) {
 		temporarily_use_uid(pw);
-		unlink(auth_sock_name);
-		rmdir(auth_sock_dir);
+		unlink(auth_sock_name); // TODO: not allowed with capsicum
+		rmdir(auth_sock_dir); // TODO: not allowed with capsicum
 		auth_sock_name = NULL;
 		restore_uid();
 	}
