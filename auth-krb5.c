@@ -58,7 +58,15 @@ krb5_init(void *context)
 		problem = krb5_init_context(&authctxt->krb5_ctx);
 		if (problem)
 			return (problem);
+
+	/* See a8104b5c92a44774208e6d8b979d583975ba67d4
+	 * Check to see
+	 * if Krb5 library exports krb5_init_etc() since some OSes (like MacOS/X)
+	 * are starting to restrict it as internal since it is not needed by
+	 * developers any more. (Patch based on Apple tree) */
+#ifdef KRB5_INIT_ETS
 		krb5_init_ets(authctxt->krb5_ctx);
+#endif
 	}
 	if (!cleanup_registered) {
 		fatal_add_cleanup(krb5_cleanup_proc, authctxt);
