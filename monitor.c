@@ -322,7 +322,11 @@ monitor_child_preauth(struct monitor *pmonitor)
 		__soaap_rpc_recv("preauth", MONITOR_REQ_SKEYQUERY, mm_answer_skeyquery);
 		__soaap_rpc_recv("preauth", MONITOR_REQ_SKEYRESPOND, mm_answer_skeyrespond);
 #endif
-
+#ifdef GSSAPI
+		__soaap_rpc_recv("preauth", MONITOR_REQ_GSSSETUP, mm_answer_gss_setup_ctx);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_GSSSTEP, mm_answer_gss_accept_ctx);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_GSSUSEROK, mm_answer_gss_userok);
+#endif
 		__soaap_rpc_recv("preauth", MONITOR_REQ_KEYALLOWED, mm_answer_keyallowed);
 		__soaap_rpc_recv("preauth", MONITOR_REQ_KEYVERIFY, mm_answer_keyverify);
 

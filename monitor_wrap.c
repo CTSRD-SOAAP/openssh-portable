@@ -1084,8 +1084,8 @@ mm_ssh_gssapi_server_ctx(Gssctxt **ctx, gss_OID oid)
 	buffer_init(&m);
 	buffer_put_string(&m, oid->elements, oid->length);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_GSSSETUP, &m);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_GSSSETUP, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_GSSSETUP, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_GSSSETUP, &m);
 
 	major = buffer_get_int(&m);
 
@@ -1104,8 +1104,8 @@ mm_ssh_gssapi_accept_ctx(Gssctxt *ctx, gss_buffer_desc *in,
 	buffer_init(&m);
 	buffer_put_string(&m, in->value, in->length);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_GSSSTEP, &m);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_GSSSTEP, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_GSSSTEP, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_GSSSTEP, &m);
 
 	major = buffer_get_int(&m);
 	out->value = buffer_get_string(&m, &len);
@@ -1126,8 +1126,8 @@ mm_ssh_gssapi_userok(char *user)
 
 	buffer_init(&m);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_GSSUSEROK, &m);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_GSSUSEROK,
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_GSSUSEROK, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_GSSUSEROK,
 				  &m);
 
 	authenticated = buffer_get_int(&m);
