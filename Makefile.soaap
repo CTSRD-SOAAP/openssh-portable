@@ -2,6 +2,8 @@ SOAAP_ROOT?=$(CURDIR)/..
 LLVM_BUILD_DIR?=$(SOAAP_ROOT)/llvm/build
 SOAAP_BUILD_DIR?=$(SOAAP_ROOT)/soaap/build
 LLVM_LINK?=$(LLVM_BUILD_DIR)/bin/llvm-link
+LLVM_EXTRACT?=$(LLVM_BUILD_DIR)/bin/llvm-extract
+CLANG?=$(LLVM_BUILD_DIR)/bin/clang
 BITCODE_LIBDIR?=$(SOAAP_ROOT)/bitcode
 
 SOAAP?=$(SOAAP_BUILD_DIR)/bin/soaap
@@ -47,12 +49,58 @@ soaap-all-json: sshd_executable.bc
 clean:
 	rm -f *.bc openbsd-compat/*.bc sshd.soaap
 
-sshd_executable.bc: sshd.bc libssh.a.bc openbsd-compat/libopenbsd-compat.a.bc
+# !!!!! llvm-extract messes up visibility!!
+# libssh.a.bc includes an incompatible log() function -> remove libc one
+# similarly it also defines a function called error
+# and it has a function called debug, where libc has a data symbol -> remove the libc ones
+# openbsd compat has a match function, WHICH IS STATIC!! what is going on here???
+# TODO: for some reason some static functions are also marked as duplicates functions
+DUPLICATE_LIBC_FUNCTIONS=-func=log -func=error -func=match -func=glob -func=globfree -func=strlcat -func=strlcpy -func=handler
+DUPLICATE_LIBC_DATA=-glob=debug
+INVALID_LIBC_ALIASES=-alias=glob64 -alias=globfree64
+
+libc_fixed.so.bc: Makefile.soaap
+ifneq ($(wildcard $(BITCODE_LIBDIR)/libc.so.bc),)
+	@echo "libc.so.bc exist"
+	$(LLVM_EXTRACT) -o $@ -delete $(DUPLICATE_LIBC_FUNCTIONS) $(DUPLICATE_LIBC_DATA) $(INVALID_LIBC_ALIASES) $(BITCODE_LIBDIR)/libc.so.bc
+else
+	@echo "WARNING: no LLVM IR libc.so.bc found. BITCODE_LIBDIR not correct?."
+	@echo "WARNING: Creating empty libc stub file?."
+	$(CLANG) -S -emit-llvm -o $@ -x c /dev/null;
+endif
+
+libssl_fixed.so.bc: Makefile.soaap
+ifneq ($(wildcard $(BITCODE_LIBDIR)/libssl.so.bc),)
+	@echo "libssl.so.bc exist"
+	cp $(BITCODE_LIBDIR)/libssl.so.bc $@
+else
+	@echo "WARNING: no LLVM IR libssl.so.bc found. BITCODE_LIBDIR not correct?."
+	@echo "WARNING: Creating empty libssl stub file?."
+	$(CLANG) -S -emit-llvm -o $@ -x c /dev/null;
+endif
+
+libcrypto_fixed.so.bc: Makefile.soaap
+ifneq ($(wildcard $(BITCODE_LIBDIR)/libcrypto.so.bc),)
+	@echo "libcrypto.so.bc exist"
+	$(LLVM_EXTRACT) -o $@ -delete -func=BF_set_key '-rglob=\.str.*' $(BITCODE_LIBDIR)/libcrypto.so.bc
+else
+	@echo "WARNING: no LLVM IR libcrypto.so.bc found. BITCODE_LIBDIR not correct?."
+	@echo "WARNING: Creating empty libcrypto stub file?."
+	$(CLANG) -S -emit-llvm -o $@ -x c /dev/null;
+endif
+
+libopenbsd-compat_fixed.a.bc: openbsd-compat/libopenbsd-compat.a.bc Makefile.soaap
+	# openbsd compat includes defines for optind
+	# and for some reason there are problems with the unnamed .str constants????
+	$(LLVM_EXTRACT) -o $@ -delete -glob=optind -glob=opterr '-rglob=\.str.*' $<
+
+sshd_executable.bc: sshd.bc libssh.a.bc libopenbsd-compat_fixed.a.bc libc_fixed.so.bc libssl_fixed.so.bc libcrypto_fixed.so.bc
 	$(LLVM_LINK) -o $@ $^
 sshd.bc:
 	$(LLVM_IR_MAKE) sshd $(MAKEFLAGS)
 libssh.a.bc:
 	$(LLVM_IR_MAKE) libssh.a $(MAKEFLAGS)
+
 openbsd-compat/libopenbsd-compat.a.bc:
 	$(LLVM_IR_MAKE) openbsd-compat/libopenbsd-compat.a $(MAKEFLAGS)
 
