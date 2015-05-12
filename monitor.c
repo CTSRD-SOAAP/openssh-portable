@@ -1809,7 +1809,7 @@ mm_answer_gss_setup_ctx(int socket, Buffer *m)
 	buffer_clear(m);
 	buffer_put_int(m, major);
 
-	mm_request_send(socket,MONITOR_ANS_GSSSETUP, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_GSSSETUP, m);
 
 	/* Now we have a context, enable the step */
 	monitor_permit(mon_dispatch, MONITOR_REQ_GSSSTEP, 1);
@@ -1835,7 +1835,7 @@ mm_answer_gss_accept_ctx(int socket, Buffer *m)
 	buffer_put_int(m, major);
 	buffer_put_string(m, out.value, out.length);
 	buffer_put_int(m, flags);
-	mm_request_send(socket, MONITOR_ANS_GSSSTEP, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_GSSSTEP, m);
 
 	gss_release_buffer(&minor, &out);
 
@@ -1858,7 +1858,7 @@ mm_answer_gss_userok(int socket, Buffer *m)
 	buffer_put_int(m, authenticated);
 
 	debug3("%s: sending result %d", __func__, authenticated);
-	mm_request_send(socket, MONITOR_ANS_GSSUSEROK, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_GSSUSEROK, m);
 
 	auth_method="gssapi";
 

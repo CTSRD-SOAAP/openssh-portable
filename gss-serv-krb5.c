@@ -61,7 +61,14 @@ ssh_gssapi_krb5_init()
 		logit("Cannot initialize krb5 context");
 		return 0;
 	}
+	/* See a8104b5c92a44774208e6d8b979d583975ba67d4
+	 * Check to see
+	 * if Krb5 library exports krb5_init_etc() since some OSes (like MacOS/X)
+	 * are starting to restrict it as internal since it is not needed by
+	 * developers any more. (Patch based on Apple tree) */
+#ifdef KRB5_INIT_ETS
 	krb5_init_ets(krb_context);
+#endif
 
 	return 1;
 }
