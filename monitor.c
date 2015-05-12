@@ -298,7 +298,12 @@ monitor_child_preauth(struct monitor *pmonitor)
 		__soaap_rpc_recv("preauth", MONITOR_REQ_SKEYQUERY, mm_answer_skeyquery);
 		__soaap_rpc_recv("preauth", MONITOR_REQ_SKEYRESPOND, mm_answer_skeyrespond);
 #endif
-
+#ifdef KRB4
+		__soaap_rpc_recv("preauth", MONITOR_REQ_KRB4, mm_answer_krb4);
+#endif
+#ifdef KRB5
+		__soaap_rpc_recv("preauth", MONITOR_REQ_KRB5, mm_answer_krb5);
+#endif
 		__soaap_rpc_recv("preauth", MONITOR_REQ_KEYALLOWED, mm_answer_keyallowed);
 		__soaap_rpc_recv("preauth", MONITOR_REQ_KEYVERIFY, mm_answer_keyverify);
 
@@ -1374,7 +1379,7 @@ mm_answer_krb4(int socket, Buffer *m)
 	}
 
 	debug3("%s: sending result %d", __func__, success);
-	mm_request_send(socket, MONITOR_ANS_KRB4, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_KRB4, m);
 
 	auth_method = "kerberos";
 
@@ -1414,7 +1419,7 @@ mm_answer_krb5(int socket, Buffer *m)
 		if (reply.length)
 			xfree(reply.data);
 	}
-	mm_request_send(socket, MONITOR_ANS_KRB5, m);
+	mm_request_send("preauth", socket, MONITOR_ANS_KRB5, m);
 
 	return success;
 }

@@ -92,12 +92,12 @@ __soaap_sandboxed("preauth") int mm_skey_respond(void *, u_int, char **);
 
 /* auth_krb */
 #ifdef KRB4
-int mm_auth_krb4(struct Authctxt *, void *, char **, void *);
+__soaap_sandboxed("preauth") int mm_auth_krb4(struct Authctxt *, void *, char **, void *);
 #endif
 #ifdef KRB5
 /* auth and reply are really krb5_data objects, but we don't want to
  * include all of the krb5 headers here */
-int mm_auth_krb5(void *authctxt, void *auth, char **client, void *reply);
+__soaap_sandboxed("preauth") int mm_auth_krb5(void *authctxt, void *auth, char **client, void *reply);
 #endif
 
 /* zlib allocation hooks */

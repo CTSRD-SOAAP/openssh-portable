@@ -954,8 +954,8 @@ mm_auth_krb4(Authctxt *authctxt, void *_auth, char **client, void *_reply)
 	buffer_init(&m);
 	buffer_put_string(&m, auth->dat, auth->length);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_KRB4, &m);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_KRB4, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_KRB4, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_KRB4, &m);
 
 	success = buffer_get_int(&m);
 	if (success) {
@@ -988,8 +988,8 @@ mm_auth_krb5(void *ctx, void *argp, char **userp, void *resp)
 	buffer_init(&m);
 	buffer_put_string(&m, tkt->data, tkt->length);
 
-	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_KRB5, &m);
-	mm_request_receive_expect(pmonitor->m_recvfd, MONITOR_ANS_KRB5, &m);
+	mm_request_send("<privileged>", pmonitor->m_recvfd, MONITOR_REQ_KRB5, &m);
+	mm_request_receive_expect("<privileged>", pmonitor->m_recvfd, MONITOR_ANS_KRB5, &m);
 
 	success = buffer_get_int(&m);
 	if (success) {
