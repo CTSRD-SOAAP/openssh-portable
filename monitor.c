@@ -424,7 +424,12 @@ monitor_child_preauth(Authctxt *_authctxt, struct monitor *pmonitor)
 		__soaap_rpc_recv("preauth", MONITOR_REQ_SKEYQUERY, mm_answer_skeyquery);
 		__soaap_rpc_recv("preauth", MONITOR_REQ_SKEYRESPOND, mm_answer_skeyrespond);
 #endif
-
+#ifdef GSSAPI
+		__soaap_rpc_recv("preauth", MONITOR_REQ_GSSSETUP, mm_answer_gss_setup_ctx);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_GSSSTEP, mm_answer_gss_accept_ctx);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_GSSUSEROK, mm_answer_gss_userok);
+		__soaap_rpc_recv("preauth", MONITOR_REQ_GSSCHECKMIC, mm_answer_gss_checkmic);
+#endif
 		__soaap_rpc_recv("preauth", MONITOR_REQ_KEYALLOWED, mm_answer_keyallowed);
 		__soaap_rpc_recv("preauth", MONITOR_REQ_KEYVERIFY, mm_answer_keyverify);
 
@@ -2122,7 +2127,7 @@ mm_answer_gss_setup_ctx(int sock, Buffer *m)
 	buffer_clear(m);
 	buffer_put_int(m, major);
 
-	mm_request_send(sock, MONITOR_ANS_GSSSETUP, m);
+	mm_request_send("preauth", sock, MONITOR_ANS_GSSSETUP, m);
 
 	/* Now we have a context, enable the step */
 	monitor_permit(mon_dispatch, MONITOR_REQ_GSSSTEP, 1);
@@ -2148,7 +2153,7 @@ mm_answer_gss_accept_ctx(int sock, Buffer *m)
 	buffer_put_int(m, major);
 	buffer_put_string(m, out.value, out.length);
 	buffer_put_int(m, flags);
-	mm_request_send(sock, MONITOR_ANS_GSSSTEP, m);
+	mm_request_send("preauth", sock, MONITOR_ANS_GSSSTEP, m);
 
 	gss_release_buffer(&minor, &out);
 
@@ -2180,7 +2185,7 @@ mm_answer_gss_checkmic(int sock, Buffer *m)
 	buffer_clear(m);
 	buffer_put_int(m, ret);
 
-	mm_request_send(sock, MONITOR_ANS_GSSCHECKMIC, m);
+	mm_request_send("preauth", sock, MONITOR_ANS_GSSCHECKMIC, m);
 
 	if (!GSS_ERROR(ret))
 		monitor_permit(mon_dispatch, MONITOR_REQ_GSSUSEROK, 1);
@@ -2199,7 +2204,7 @@ mm_answer_gss_userok(int sock, Buffer *m)
 	buffer_put_int(m, authenticated);
 
 	debug3("%s: sending result %d", __func__, authenticated);
-	mm_request_send(sock, MONITOR_ANS_GSSUSEROK, m);
+	mm_request_send("preauth", sock, MONITOR_ANS_GSSUSEROK, m);
 
 	auth_method = "gssapi-with-mic";
 
