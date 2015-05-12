@@ -28,7 +28,9 @@
 #ifndef _MM_FDPASS_H_
 #define _MM_FDPASS_H_
 
-void mm_send_fd(int, int);
-int mm_receive_fd(int);
+#include <soaap.h>
+
+__soaap_privileged void mm_send_fd(int, int); // used for PTY
+__soaap_sandboxed("postauth") int mm_receive_fd(int); // used for PTY
 
 #endif /* _MM_FDPASS_H_ */
