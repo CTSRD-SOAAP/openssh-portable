@@ -85,7 +85,7 @@ endif
 	fi
 
 libssh_fixed.a.bc: libssh.a.bc Makefile.soaap
-	$(LLVM_EXTRACT) -o $@ -delete -func=cleanup_exit $<
+	$(LLVM_EXTRACT) -o $@ -delete -func=cleanup_exit -glob=session_id2 -glob=session_id2_len -func=mm_choose_dh $<
 
 libopenbsd-compat_fixed.a.bc: openbsd-compat/libopenbsd-compat.a.bc Makefile.soaap
 	$(LLVM_EXTRACT) -o $@ -delete -func=glob -func=globfree -func=strlcat -func=strlcpy -func=mkdtemp -func=mkstemp -func=mkstemps $<
