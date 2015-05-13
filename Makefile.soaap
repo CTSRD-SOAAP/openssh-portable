@@ -2,7 +2,9 @@ SOAAP_ROOT?=$(CURDIR)/..
 LLVM_BUILD_DIR?=$(SOAAP_ROOT)/llvm/build
 SOAAP_BUILD_DIR?=$(SOAAP_ROOT)/soaap/build
 LLVM_LINK?=$(LLVM_BUILD_DIR)/bin/llvm-link
-BITCODE_LIBDIR?=$(SOAAP_ROOT)/bitcode
+LLVM_EXTRACT?=$(LLVM_BUILD_DIR)/bin/llvm-extract
+CLANG?=$(LLVM_BUILD_DIR)/bin/clang
+BITCODE_LIBDIR?=$(SOAAP_ROOT)/bitcode/snapshots
 
 SOAAP?=$(SOAAP_BUILD_DIR)/bin/soaap
 # TODO: remove -soaap-skip-global-variable-analysis in the future
@@ -47,12 +49,52 @@ soaap-all-json: sshd_executable.bc
 clean:
 	rm -f *.bc openbsd-compat/*.bc sshd.soaap
 
-sshd_executable.bc: sshd.bc libssh.a.bc openbsd-compat/libopenbsd-compat.a.bc
+DUPLICATE_LIBC_FUNCTIONS=-func=log
+
+libc_fixed.so.bc: Makefile.soaap
+ifneq ($(wildcard $(BITCODE_LIBDIR)/libc.so.bc),)
+	@echo "libc.so.bc exist"
+	@#libssh.a defines a log function for logging which conflicts with the builting math function log
+	$(LLVM_EXTRACT) -o $@ -delete -func=log $(BITCODE_LIBDIR)/libc.so.bc
+else
+	@echo "WARNING: no LLVM IR libc.so.bc found. BITCODE_LIBDIR not correct?."
+	@echo "WARNING: Creating empty libc stub file."
+	$(CLANG) -S -emit-llvm -o $@ -x c /dev/null;
+endif
+
+# libcrypto_fixed.so.bc: Makefile.soaap
+# ifneq ($(wildcard $(BITCODE_LIBDIR)/libcrypto.so.bc),)
+# 	@echo "libcrypto.so.bc exist"
+# 	@#$(LLVM_EXTRACT) -o $@ -delete -func=BF_set_key $(BITCODE_LIBDIR)/libcrypto.so.bc
+# 	cp -L $(BITCODE_LIBDIR)/libcrypto.so.bc $@
+# else
+# 	@echo "WARNING: no LLVM IR libcrypto.so.bc found. BITCODE_LIBDIR not correct?."
+# 	@echo "WARNING: Creating empty libcrypto stub file."
+# 	$(CLANG) -S -emit-llvm -o $@ -x c /dev/null;
+# endif
+
+%.so.bc: Makefile.soaap
+	@if [[ -f "$(BITCODE_LIBDIR)/$@" ]]; then \
+		echo "$(BITCODE_LIBDIR)/$@ exists"; \
+		echo "cp -L $(BITCODE_LIBDIR)/$@ $@"; \
+		cp -L $(BITCODE_LIBDIR)/$@ $@; \
+	else \
+		echo "WARNING: no LLVM IR $@ found. BITCODE_LIBDIR not correct?."; \
+		echo "WARNING: Creating empty $@ stub file."; \
+		$(CLANG) -S -emit-llvm -o $@ -x c /dev/null; \
+	fi
+
+libopenbsd-compat_fixed.a.bc: openbsd-compat/libopenbsd-compat.a.bc Makefile.soaap
+	@# openbsd compat includes defines for optind, opterr, glob, globfree, strlcat, strlcpy which libc also has
+	$(LLVM_EXTRACT) -o $@ -delete -glob=optind -glob=opterr -func=glob -func=globfree -func=strlcat -func=strlcpy $<
+
+sshd_executable.bc: sshd.bc libssh.a.bc libopenbsd-compat_fixed.a.bc libc_fixed.so.bc libssl.so.bc libcrypto.so.bc libpam.so.bc libz.so.bc libk5crypto.so.bc libkrb5support.so.bc libkrb5.so.bc libcom_err.so.bc libkeyutils.so.bc
 	$(LLVM_LINK) -o $@ $^
 sshd.bc:
 	$(LLVM_IR_MAKE) sshd $(MAKEFLAGS)
 libssh.a.bc:
 	$(LLVM_IR_MAKE) libssh.a $(MAKEFLAGS)
+
 openbsd-compat/libopenbsd-compat.a.bc:
 	$(LLVM_IR_MAKE) openbsd-compat/libopenbsd-compat.a $(MAKEFLAGS)
 
