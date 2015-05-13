@@ -86,7 +86,7 @@ endif
 
 libopenbsd-compat_fixed.a.bc: openbsd-compat/libopenbsd-compat.a.bc Makefile.soaap
 	@# openbsd compat includes defines for optind, opterr, glob, globfree, strlcat, strlcpy which libc also has
-	$(LLVM_EXTRACT) -o $@ -delete -glob=optind -glob=opterr -func=glob -func=globfree -func=strlcat -func=strlcpy $<
+	$(LLVM_EXTRACT) -o $@ -delete -func=glob -func=globfree -func=strlcat -func=strlcpy $<
 
 sshd_executable.bc: sshd.bc libssh.a.bc libopenbsd-compat_fixed.a.bc libc_fixed.so.bc libssl.so.bc libcrypto.so.bc libpam.so.bc libz.so.bc libk5crypto.so.bc libkrb5support.so.bc libkrb5.so.bc libcom_err.so.bc libkeyutils.so.bc
 	$(LLVM_LINK) -o $@ $^
