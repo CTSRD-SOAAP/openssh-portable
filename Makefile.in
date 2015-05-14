@@ -33,10 +33,12 @@ PATHS= -DSSHDIR=\"$(sysconfdir)\" \
 	-D_PATH_PRIVSEP_CHROOT_DIR=\"$(PRIVSEP_PATH)\" \
 	-DSSH_RAND_HELPER=\"$(libexecdir)/ssh-rand-helper\"
 
+
+SOAAP_ROOT?=$(top_srcdir)/..
 CC=@CC@
 LD=@LD@
 CFLAGS=@CFLAGS@ -Wno-pointer-sign
-CPPFLAGS=-I. -I$(srcdir) -isystem $(top_srcdir)/../soaap/include @CPPFLAGS@ $(PATHS) @DEFS@
+CPPFLAGS=-I. -I$(srcdir) -isystem $(SOAAP_ROOT)/soaap/include @CPPFLAGS@ $(PATHS) @DEFS@
 LIBS=@LIBS@
 LIBPAM=@LIBPAM@
 LIBWRAP=@LIBWRAP@
