@@ -1,0 +1,2 @@
+open, EACCES
+stat, EACCES
