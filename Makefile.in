@@ -40,6 +40,11 @@ LD=@LD@
 CFLAGS=@CFLAGS@ -Wno-pointer-sign
 CPPFLAGS=-I. -I$(srcdir) -isystem $(SOAAP_ROOT)/soaap/include @CPPFLAGS@ $(PATHS) @DEFS@
 LIBS=@LIBS@
+ifeq ($(shell uname),FreeBSD)
+# FreeBSD doesn't have libdes?
+LIBS := $(filter-out -ldes,$(LIBS))
+endif
+
 LIBPAM=@LIBPAM@
 LIBWRAP=@LIBWRAP@
 AR=@AR@
