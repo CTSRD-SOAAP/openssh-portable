@@ -1,5 +1,6 @@
 getpid
 gettimeofday
+clock_gettime
 time
 read
 write
@@ -9,6 +10,7 @@ poll
 _newselect
 select
 madvise
+mmap2
 mmap
 munmap
 exit_group
