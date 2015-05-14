@@ -1,0 +1,16 @@
+getpid
+gettimeofday
+time
+read
+write
+close
+brk
+poll
+_newselect
+select
+madvise
+mmap
+munmap
+exit_group
+rt_sigprocmask
+sigprocmask
