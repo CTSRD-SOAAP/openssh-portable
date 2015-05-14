@@ -5,6 +5,7 @@ time
 read
 write
 close
+shutdown
 brk
 poll
 _newselect
@@ -12,6 +13,8 @@ select
 madvise
 mmap2
 mmap
+mremap
+exit
 munmap
 exit_group
 rt_sigprocmask
