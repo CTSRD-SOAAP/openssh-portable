@@ -8,7 +8,7 @@ BITCODE_LIBDIR?=$(SOAAP_ROOT)/bitcode/snapshots
 
 SOAAP?=$(SOAAP_BUILD_DIR)/bin/soaap
 # TODO: remove -soaap-skip-global-variable-analysis in the future
-SOAAP_DEFAULT_OPTIONS?=-soaap-list-fp-targets -soaap-infer-fp-targets -soaap-sandbox-platform=capsicum -soaap-analyses=vulnerability,syscalls,privcalls,sandboxed,infoflow -soaap-output-traces=all
+SOAAP_DEFAULT_OPTIONS?=-soaap-infer-fp-targets -soaap-sandbox-platform=capsicum -soaap-analyses=vulnerability,syscalls,privcalls,sandboxed,infoflow -soaap-output-traces=all
 SOAAP_OPTIONS?=
 SOAAP_FULL_ANALYSIS_OPTIONS?=-soaap-analyses=vulnerability,syscalls,privcalls,sandboxed,infoflow -soaap-list-fp-targets -soaap-list-sandboxed-funcs -soaap-dump-rpc-graph -soaap-output-traces=all -soaap-mode=all
 
