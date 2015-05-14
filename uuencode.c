@@ -28,6 +28,10 @@ RCSID("$OpenBSD: uuencode.c,v 1.16 2002/09/09 14:54:15 markus Exp $");
 #include "xmalloc.h"
 #include "uuencode.h"
 
+#ifdef __FreeBSD__
+#include <resolv.h>
+#endif
+
 int
 uuencode(u_char *src, u_int srclength,
     char *target, size_t targsize)
