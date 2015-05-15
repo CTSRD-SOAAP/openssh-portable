@@ -322,9 +322,11 @@ do_convert_to_ssh2(struct passwd *pw, struct sshkey *k)
 	    sshkey_size(k), sshkey_type(k),
 	    pw->pw_name, hostname);
 
+  __soaap_vuln_pt("CVE-2000-0999");
 	fprintf(stdout, "%s\n", SSH_COM_PUBLIC_BEGIN);
 	fprintf(stdout, "Comment: \"%s\"\n", comment);
 	dump_base64(stdout, blob, len);
+  __soaap_vuln_pt("CVE-2000-0999");
 	fprintf(stdout, "%s\n", SSH_COM_PUBLIC_END);
 	sshkey_free(k);
 	free(blob);
