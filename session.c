@@ -219,7 +219,6 @@ do_authenticated(Authctxt *authctxt)
 	else
 		do_authenticated1(authctxt);
 
-__soaap_vuln_pt("CVE-2001-0529");
 	/* remove agent socket */
 	if (auth_sock_name != NULL)
 		auth_sock_cleanup_proc(authctxt->pw);
