@@ -482,6 +482,7 @@ confirm(const char *prompt)
  * check whether the supplied host key is valid, return -1 if the key
  * is not valid. the user_hostfile will not be updated if 'readonly' is true.
  */
+__soaap_vuln_fn("CVE-2003-0190")
 static int
 check_host_key(char *host, struct sockaddr *hostaddr, Key *host_key,
     int readonly, const char *user_hostfile, const char *system_hostfile)

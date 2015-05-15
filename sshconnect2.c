@@ -285,6 +285,7 @@ userauth(Authctxt *authctxt, char *authlist)
 			xfree(authctxt->authlist);
 		authctxt->authlist = authlist;
 	}
+  __soaap_vuln_pt("CVE-2003-0190");
 	for (;;) {
 		Authmethod *method = authmethod_get(authlist);
 		if (method == NULL)
@@ -314,6 +315,7 @@ input_userauth_banner(int type, u_int32_t seq, void *ctxt)
 	debug3("input_userauth_banner");
 	msg = packet_get_string(NULL);
 	lang = packet_get_string(NULL);
+  __soaap_vuln_pt("CVE-2003-0190");
 	fprintf(stderr, "%s", msg);
 	xfree(msg);
 	xfree(lang);
@@ -450,6 +452,7 @@ userauth_passwd(Authctxt *authctxt)
 	if (attempt++ >= options.number_of_password_prompts)
 		return 0;
 
+  __soaap_vuln_pt("CVE-2003-0190");
 	if (attempt != 1)
 		error("Permission denied, please try again.");
 
