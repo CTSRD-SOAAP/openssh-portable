@@ -35,6 +35,13 @@ buffer_append(Buffer *buffer, const void *data, u_int len)
 		fatal("%s: %s", __func__, ssh_err(ret));
 }
 
+/*
+ * Appends space to the buffer, expanding the buffer if necessary. This does
+ * not actually copy the data into the buffer, but instead returns a pointer
+ * to the allocated region.
+ */
+
+__soaap_vuln_fn("CVE-2003-0693")
 void *
 buffer_append_space(Buffer *buffer, u_int len)
 {
