@@ -2196,6 +2196,7 @@ main(int ac, char **av)
  * Decrypt session_key_int using our private server key and private host key
  * (key with larger modulus first).
  */
+__soaap_vuln_fn("CVE-2001-0361")
 int
 ssh1_session_key(BIGNUM *session_key_int)
 {
@@ -2344,6 +2345,7 @@ do_ssh1_kex(void)
 	 * least significant 256 bits of the integer; the first byte of the
 	 * key is in the highest bits.
 	 */
+  __soaap_vuln_pt("CVE-2001-0361");
 	if (!rsafail) {
 		(void) BN_mask_bits(session_key_int, sizeof(session_key) * 8);
 		len = BN_num_bytes(session_key_int);

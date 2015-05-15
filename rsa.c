@@ -100,6 +100,7 @@ rsa_public_encrypt(BIGNUM *out, BIGNUM *in, RSA *key)
 	free(inbuf);
 }
 
+__soaap_vuln_fn("CVE-2001-0361")
 int
 rsa_private_decrypt(BIGNUM *out, BIGNUM *in, RSA *key)
 {
