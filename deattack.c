@@ -99,6 +99,7 @@ check_crc(u_char *S, u_char *buf, u_int32_t len)
 
 
 /* Detect a crc32 compensation attack on a packet */
+__soaap_vuln_fn("CVE-2001-0144")
 int
 detect_attack(u_char *buf, u_int32_t len)
 {
