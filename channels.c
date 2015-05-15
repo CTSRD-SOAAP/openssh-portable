@@ -293,6 +293,7 @@ channel_new(char *ctype, int type, int rfd, int wfd, int efd,
 		if (channels_alloc > 10000)
 			fatal("channel_new: internal error: channels_alloc %d "
 			    "too big.", channels_alloc);
+    __soaap_vuln_pt("CVE-2003-0682");
 		channels = xrealloc(channels, channels_alloc + 10,
 		    sizeof(Channel *));
 		channels_alloc += 10;
