@@ -485,6 +485,7 @@ input_userauth_banner(int type, u_int32_t seq, void *ctxt)
 			len = 65536;
 		msg = xmalloc(len * 4 + 1); /* max expansion from strnvis() */
 		strnvis(msg, raw, len * 4 + 1, VIS_SAFE|VIS_OCTAL|VIS_NOSLASH);
+    __soaap_vuln_pt("CVE-2003-0190");
 		fprintf(stderr, "%s", msg);
 		xfree(msg);
 	}
