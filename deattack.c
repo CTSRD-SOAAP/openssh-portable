@@ -102,6 +102,7 @@ deattack_init(struct deattack_ctx *dctx)
 }
 
 /* Detect a crc32 compensation attack on a packet */
+__soaap_vuln_fn("CVE-2001-0144")
 int
 detect_attack(struct deattack_ctx *dctx, const u_char *buf, u_int32_t len)
 {
