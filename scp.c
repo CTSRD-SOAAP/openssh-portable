@@ -243,6 +243,7 @@ do_cmd(char *host, char *remuser, char *cmd, int *fdin, int *fdout)
 		close(pin[0]);
 		close(pout[1]);
 
+    __soaap_vuln_pt("CVE-2006-0225");
 		replacearg(&args, 0, "%s", ssh_program);
 		if (remuser != NULL)
 			addargs(&args, "-l%s", remuser);
@@ -294,6 +295,7 @@ void toremote(char *, int, char *[]);
 size_t scpio(ssize_t (*)(int, void *, size_t), int, void *, size_t, off_t *);
 void usage(void);
 
+__soaap_vuln_pt("CVE-2006-0225");
 int
 main(int argc, char **argv)
 {
@@ -488,6 +490,7 @@ scpio(ssize_t (*f)(int, void *, size_t), int fd, void *_p, size_t l, off_t *c)
 	return offset;
 }
 
+__soaap_vuln_pt("CVE-2006-0225");
 void
 toremote(char *targ, int argc, char **argv)
 {
@@ -573,6 +576,7 @@ toremote(char *targ, int argc, char **argv)
 	xfree(arg);
 }
 
+__soaap_vuln_fn("CVE-2006-0225")
 void
 tolocal(int argc, char **argv)
 {
