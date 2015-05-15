@@ -112,6 +112,7 @@ static char *auth_sock_dir = NULL;
 
 /* removes the agent forwarding socket */
 
+__soaap_vuln_pt("CVE-2001-0529")
 static void
 auth_sock_cleanup_proc(void *_pw)
 {
@@ -161,6 +162,7 @@ auth_input_request_forwarding(struct passwd * pw)
 		 auth_sock_dir, (long) getpid());
 
 	/* delete agent socket on fatal() */
+  __soaap_vuln_pt("CVE-2001-0529");
 	fatal_add_cleanup(auth_sock_cleanup_proc, pw);
 
 	/* Create the socket. */
@@ -217,6 +219,7 @@ do_authenticated(Authctxt *authctxt)
 	else
 		do_authenticated1(authctxt);
 
+__soaap_vuln_pt("CVE-2001-0529");
 	/* remove agent socket */
 	if (auth_sock_name != NULL)
 		auth_sock_cleanup_proc(authctxt->pw);
@@ -232,6 +235,7 @@ do_authenticated(Authctxt *authctxt)
  * terminals are allocated, X11, TCP/IP, and authentication agent forwardings
  * are requested, etc.
  */
+__soaap_vuln_fn("CVE-2001-0529")
 static void
 do_authenticated1(Authctxt *authctxt)
 {
