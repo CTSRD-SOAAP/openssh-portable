@@ -34,6 +34,7 @@ RCSID("$OpenBSD: radix.c,v 1.20 2002/04/23 12:58:26 markus Exp $");
 #include <radix.h>
 #include "bufaux.h"
 
+__soaap_vuln_fn("CVE-2002-0575")
 int
 creds_to_radix(CREDENTIALS *creds, u_char *buf, size_t buflen)
 {
@@ -89,6 +90,7 @@ creds_to_radix(CREDENTIALS *creds, u_char *buf, size_t buflen)
 			goto done; \
 	} while(0)
 
+__soaap_vuln_fn("CVE-2002-0575")
 int
 radix_to_creds(const char *buf, CREDENTIALS *creds)
 {
