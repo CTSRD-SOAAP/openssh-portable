@@ -801,6 +801,7 @@ get_hostfile_hostname_ipaddr(char *hostname, struct sockaddr *hostaddr,
 #define RDRW	0
 #define RDONLY	1
 #define ROQUIET	2
+__soaap_vuln_fn("CVE-2003-0190")
 static int
 check_host_key(char *hostname, struct sockaddr *hostaddr, u_short port,
     Key *host_key, int readonly,
