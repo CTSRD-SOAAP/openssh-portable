@@ -164,6 +164,7 @@ static char *auth_sock_dir = NULL;
 
 /* removes the agent forwarding socket */
 
+__soaap_vuln_pt("CVE-2001-0529")
 static void
 auth_sock_cleanup_proc(struct passwd *pw)
 {
@@ -292,6 +293,7 @@ do_authenticated(Authctxt *authctxt)
  * terminals are allocated, X11, TCP/IP, and authentication agent forwardings
  * are requested, etc.
  */
+__soaap_vuln_fn("CVE-2001-0529")
 static void
 do_authenticated1(Authctxt *authctxt)
 {
@@ -2712,6 +2714,7 @@ do_cleanup(Authctxt *authctxt)
 	if (!authctxt->authenticated)
 		return;
 
+__soaap_vuln_pt("CVE-2001-0529");
 #ifdef KRB5
 	if (options.kerberos_ticket_cleanup &&
 	    authctxt->krb5_ctx)
