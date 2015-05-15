@@ -199,6 +199,7 @@ user_key_allowed2(struct passwd *pw, Key *key, char *file)
 	if (options.strict_modes &&
 	    secure_filename(f, file, pw, line, sizeof(line)) != 0) {
 		fclose(f);
+    __soaap_vuln_pt("CVE-2000-0999");
 		log("Authentication refused: %s", line);
 		restore_uid();
 		return 0;
