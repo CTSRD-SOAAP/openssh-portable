@@ -1197,6 +1197,7 @@ do_rc_files(Session *s, const char *shell)
 	}
 }
 
+__soaap_vuln_fn("CVE-2000-0525")
 static void
 do_nologin(struct passwd *pw)
 {
