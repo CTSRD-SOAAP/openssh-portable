@@ -1408,7 +1408,6 @@ do_rc_files(Session *s, const char *shell)
 	}
 }
 
-__soaap_vuln_fn("CVE-2000-0525")
 static void
 do_nologin(struct passwd *pw)
 {
@@ -1681,6 +1680,7 @@ do_child(Session *s, const char *command)
 		exit(1);
 	}
 
+  __soaap_vuln_pt("CVE-2000-0525");
 	/* login(1) is only called if we execute the login shell */
 	if (options.use_login && command != NULL)
 		options.use_login = 0;
