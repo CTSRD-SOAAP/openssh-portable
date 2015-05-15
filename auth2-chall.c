@@ -260,6 +260,7 @@ input_userauth_info_response(int type, u_int32_t seq, void *ctxt)
 	nresp = packet_get_int();
 	if (nresp != kbdintctxt->nreq)
 		fatal("input_userauth_info_response: wrong number of replies");
+  __soaap_vuln_pt("CVE-2002-0639");
 	if (nresp > 100)
 		fatal("input_userauth_info_response: too many replies");
 	if (nresp > 0) {

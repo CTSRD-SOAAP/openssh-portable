@@ -141,6 +141,7 @@ input_userauth_info_response_pam(int type, u_int32_t seqnr, void *ctxt)
 	nresp = packet_get_int();	/* Number of responses. */
 	debug("got %d responses", nresp);
 
+  __soaap_vuln_pt("CVE-2002-0639");
 
 	if (nresp != context_pam2.num_expected)
 		fatal("%s: Received incorrect number of responses "
