@@ -117,7 +117,7 @@ static char *auth_sock_dir = NULL;
 
 /* removes the agent forwarding socket */
 
-__soaap_vuln_pt("CVE-2001-0529")
+__soaap_vuln_fn("CVE-2001-0529")
 static void
 auth_sock_cleanup_proc(void *_pw)
 {
