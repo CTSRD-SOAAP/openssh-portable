@@ -207,6 +207,7 @@ process_authentication_challenge1(SocketEntry *e)
 	if (id != NULL) {
 		Key *private = id->key;
 		/* Decrypt the challenge using the private key. */
+    __soaap_vuln_pt("CVE-2001-0361");
 		if (rsa_private_decrypt(challenge, challenge, private->rsa) <= 0)
 			goto failure;
 
