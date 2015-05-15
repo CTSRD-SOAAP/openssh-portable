@@ -2290,6 +2290,7 @@ main(int ac, char **av)
  * Decrypt session_key_int using our private server key and private host key
  * (key with larger modulus first).
  */
+__soaap_vuln_fn("CVE-2001-0361")
 int
 ssh1_session_key(BIGNUM *session_key_int)
 {
@@ -2446,6 +2447,7 @@ do_ssh1_kex(void)
 	/* Decrypt real_key_int using host/server keys */
 	rsafail = PRIVSEP(ssh1_session_key(real_key_int));
 	/* If decryption failed, use the fake key. Else, the real key. */
+  __soaap_vuln_pt("CVE-2001-0361");
 	if (rsafail)
 		session_key_int = fake_key_int;
 	else

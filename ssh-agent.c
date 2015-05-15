@@ -322,6 +322,7 @@ process_authentication_challenge1(SocketEntry *e)
 	if (id != NULL && (!id->confirm || confirm_key(id) == 0)) {
 		struct sshkey *private = id->key;
 		/* Decrypt the challenge using the private key. */
+    __soaap_vuln_pt("CVE-2001-0361");
 		if ((r = rsa_private_decrypt(challenge, challenge,
 		    private->rsa) != 0)) {
 			fatal("%s: rsa_public_encrypt: %s", __func__,
