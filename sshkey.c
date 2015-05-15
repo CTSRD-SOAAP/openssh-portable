@@ -1312,6 +1312,7 @@ sshkey_read(struct sshkey *ret, char **cpp)
 		if (*cp == '\0')
 			return SSH_ERR_INVALID_FORMAT;
 		if (ret->type != KEY_UNSPEC && ret->type != type)
+      __soaap_vuln_pt("CVE-2001-1382");
 			return SSH_ERR_KEY_TYPE_MISMATCH;
 		if ((blob = sshbuf_new()) == NULL)
 			return SSH_ERR_ALLOC_FAIL;
