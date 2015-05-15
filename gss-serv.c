@@ -346,6 +346,7 @@ ssh_gssapi_do_child(char ***envp, u_int *envsizep)
 }
 
 /* Privileged */
+__soaap_vuln_fn("CVE-2005-2798")
 int
 ssh_gssapi_userok(char *user)
 {
