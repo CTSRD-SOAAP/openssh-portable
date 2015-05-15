@@ -453,6 +453,7 @@ try_password_authentication(char *prompt)
 	debug("Doing password authentication.");
 	if (options.cipher == SSH_CIPHER_NONE)
 		logit("WARNING: Encryption is disabled! Password will be transmitted in clear text.");
+  __soaap_vuln_pt("CVE-2003-0190");
 	for (i = 0; i < options.number_of_password_prompts; i++) {
 		if (i != 0)
 			error("Permission denied, please try again.");
@@ -746,6 +747,7 @@ ssh_userauth1(const char *local_user, const char *server_user, char *host,
 			goto success;
 	}
 	/* All authentication methods have failed.  Exit with an error message. */
+  __soaap_vuln_pt("CVE-2003-0190");
 	fatal("Permission denied.");
 	/* NOTREACHED */
 
