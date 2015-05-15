@@ -1007,6 +1007,7 @@ do_setup_env(Session *s, const char *shell)
 		child_set_env(&env, &envsize, "TZ", getenv("TZ"));
 
 	/* Set custom environment options from RSA authentication. */
+  __soaap_vuln_pt("CVE-2001-0872");
 	if (!options.use_login) {
 		while (custom_environment) {
 			struct envstring *ce = custom_environment;
