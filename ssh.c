@@ -362,6 +362,7 @@ resolve_canonicalize(char **hostp, u_int port)
 /*
  * Main program for the ssh client.
  */
+__soaap_vuln_fn("CVE-2003-0190")
 int
 main(int ac, char **av)
 {

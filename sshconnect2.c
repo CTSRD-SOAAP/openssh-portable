@@ -441,6 +441,7 @@ userauth(Authctxt *authctxt, char *authlist)
 		free(authctxt->authlist);
 		authctxt->authlist = authlist;
 	}
+  __soaap_vuln_pt("CVE-2003-0190");
 	for (;;) {
 		Authmethod *method = authmethod_get(authlist);
 		if (method == NULL)
@@ -872,6 +873,7 @@ userauth_passwd(Authctxt *authctxt)
 	if (attempt++ >= options.number_of_password_prompts)
 		return 0;
 
+  __soaap_vuln_pt("CVE-2003-0190");
 	if (attempt != 1)
 		error("Permission denied, please try again.");
 
