@@ -134,6 +134,7 @@ sshbuf_fromb(struct sshbuf *buf)
 void
 sshbuf_init(struct sshbuf *ret)
 {
+  __soaap_vuln_pt("CVE-2003-0682");
 	bzero(ret, sizeof(*ret));
 	ret->alloc = SSHBUF_SIZE_INIT;
 	ret->max_size = SSHBUF_SIZE_MAX;
