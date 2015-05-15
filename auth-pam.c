@@ -1190,6 +1190,7 @@ sshpam_auth_passwd(Authctxt *authctxt, const char *password)
 	sshpam_password = password;
 	sshpam_authctxt = authctxt;
 
+  __soaap_vuln_pt("CVE-2004-2760");
 	/*
 	 * If the user logging in is invalid, or is root but is not permitted
 	 * by PermitRootLogin, use an invalid password to prevent leaking
