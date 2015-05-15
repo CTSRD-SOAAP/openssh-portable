@@ -73,6 +73,7 @@ buffer_append(Buffer *buffer, const void *data, u_int len)
  * to the allocated region.
  */
 
+__soaap_vuln_fn("CVE-2003-0693")
 void *
 buffer_append_space(Buffer *buffer, u_int len)
 {
