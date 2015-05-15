@@ -764,6 +764,7 @@ key_read(Key *ret, char **cpp)
 		} else if (ret->type != type) {
 			/* is a key, but different type */
 			debug3("key_read: type mismatch");
+      __soaap_vuln_pt("CVE-2001-1382");
 			return -1;
 		}
 		len = 2*strlen(cp);
