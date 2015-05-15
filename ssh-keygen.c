@@ -168,12 +168,14 @@ do_convert_to_ssh2(struct passwd *pw)
 		fprintf(stderr, "key_to_blob failed\n");
 		exit(1);
 	}
+  __soaap_vuln_pt("CVE-2000-0999");
 	fprintf(stdout, "%s\n", SSH_COM_PUBLIC_BEGIN);
 	fprintf(stdout,
 	    "Comment: \"%d-bit %s, converted from OpenSSH by %s@%s\"\n",
 	    key_size(k), key_type(k),
 	    pw->pw_name, hostname);
 	dump_base64(stdout, blob, len);
+  __soaap_vuln_pt("CVE-2000-0999");
 	fprintf(stdout, "%s\n", SSH_COM_PUBLIC_END);
 	key_free(k);
 	xfree(blob);
