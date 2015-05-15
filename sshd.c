@@ -356,6 +356,7 @@ main_sigchld_handler(int sig)
 static void
 grace_alarm_handler(int sig)
 {
+  __soaap_vuln_pt("CVE-2004-2069");
 	if (use_privsep && pmonitor != NULL && pmonitor->m_pid > 0)
 		kill(pmonitor->m_pid, SIGALRM);
 
