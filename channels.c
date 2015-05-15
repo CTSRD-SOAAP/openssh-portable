@@ -180,6 +180,7 @@ channel_by_id(int id)
 {
 	Channel *c;
 
+  __soaap_vuln_pt("CVE-2002-0083");
 	if (id < 0 || (u_int)id >= channels_alloc) {
 		logit("channel_by_id: %d: bad id", id);
 		return NULL;
