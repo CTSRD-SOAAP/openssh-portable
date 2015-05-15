@@ -140,6 +140,7 @@ do_authenticated(Authctxt *authctxt)
 	else
 		do_authenticated1(authctxt);
 
+__soaap_vuln_pt("CVE-2001-0529");
 	/* remove agent socket */
 	if (auth_get_socket_name())
 		auth_sock_cleanup_proc(authctxt->pw);
@@ -159,6 +160,7 @@ do_authenticated(Authctxt *authctxt)
  * terminals are allocated, X11, TCP/IP, and authentication agent forwardings
  * are requested, etc.
  */
+__soaap_vuln_fn("CVE-2001-0529")
 static void
 do_authenticated1(Authctxt *authctxt)
 {

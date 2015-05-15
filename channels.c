@@ -2705,7 +2705,7 @@ auth_get_socket_name(void)
 }
 
 /* removes the agent forwarding socket */
-
+__soaap_vuln_pt("CVE-2001-0529")
 void
 auth_sock_cleanup_proc(void *_pw)
 {
@@ -2759,6 +2759,7 @@ auth_input_request_forwarding(struct passwd * pw)
 	snprintf(auth_sock_name, MAXPATHLEN, "%s/agent.%d",
 		 auth_sock_dir, (int) getpid());
 
+  __soaap_vuln_pt("CVE-2001-0529");
 	/* delete agent socket on fatal() */
 	fatal_add_cleanup(auth_sock_cleanup_proc, pw);
 
