@@ -127,7 +127,6 @@ do_pam_conversation_kbd_int(int num_msg, const struct pam_message **msg,
 		return PAM_CONV_ERR;
 }
 
-__soaap_vuln_fn("CVE-2002-0639") // http://www.openssh.com/txt/preauth.adv
 void
 input_userauth_info_response_pam(int type, u_int32_t seqnr, void *ctxt)
 {
@@ -141,7 +140,7 @@ input_userauth_info_response_pam(int type, u_int32_t seqnr, void *ctxt)
 	nresp = packet_get_int();	/* Number of responses. */
 	debug("got %d responses", nresp);
 
-  __soaap_vuln_pt("CVE-2002-0639");
+  __soaap_vuln_pt("CVE-2002-0640");
 
 	if (nresp != context_pam2.num_expected)
 		fatal("%s: Received incorrect number of responses "
