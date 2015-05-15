@@ -146,6 +146,7 @@ channel_lookup(int id)
 {
 	Channel *c;
 
+  __soaap_vuln_pt("CVE-2002-0083");
 	if (id < 0 || id >= channels_alloc) {
 		log("channel_lookup: %d: bad id", id);
 		return NULL;
