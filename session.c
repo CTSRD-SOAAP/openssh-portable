@@ -695,6 +695,7 @@ do_motd(void)
 
 	if (options.print_motd) {
 #ifdef HAVE_LOGIN_CAP
+    __soaap_vuln_pt("CVE-2001-1029");
 		f = fopen(login_getcapstr(lc, "welcome", "/etc/motd",
 		    "/etc/motd"), "r");
 #else
