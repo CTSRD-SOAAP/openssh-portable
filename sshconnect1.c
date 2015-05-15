@@ -155,6 +155,7 @@ respond_to_rsa_challenge(BIGNUM * challenge, RSA * prv)
 
 	/* Decrypt the challenge using the private key. */
 	/* XXX think about Bleichenbacher, too */
+  __soaap_vuln_pt("CVE-2001-0361");
 	if (rsa_private_decrypt(challenge, challenge, prv) <= 0)
 		packet_disconnect(
 		    "respond_to_rsa_challenge: rsa_private_decrypt failed");

@@ -86,6 +86,7 @@ int
 detect_attack(u_char *buf, u_int32_t len, u_char *IV)
 {
 	static u_int16_t *h = (u_int16_t *) NULL;
+  __soaap_vuln_pt("CVE-2001-0361");
 	static u_int32_t n = HASH_MINSIZE / HASH_ENTRYSIZE;
 	u_int32_t i, j;
 	u_int32_t l;
