@@ -256,6 +256,7 @@ input_userauth_info_response(int type, u_int32_t seq, void *ctxt)
 
 	authctxt->postponed = 0;	/* reset */
 	nresp = packet_get_int();
+  __soaap_live_vuln_pt("CVE-2002-0639")
 	if (nresp > 0) {
 		response = xmalloc(nresp * sizeof(char*));
 		for (i = 0; i < nresp; i++)

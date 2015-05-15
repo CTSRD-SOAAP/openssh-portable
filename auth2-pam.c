@@ -141,6 +141,8 @@ input_userauth_info_response_pam(int type, u_int32_t seqnr, void *ctxt)
 	nresp = packet_get_int();	/* Number of responses. */
 	debug("got %d responses", nresp);
 
+  __soaap_live_vuln_pt("CVE-2002-0639");
+
 	for (i = 0; i < nresp; i++) {
 		int j = context_pam2.prompts[i];
 
