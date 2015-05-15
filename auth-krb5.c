@@ -72,6 +72,7 @@ krb5_init(void *context)
  * only, in auth is received ticket, in client is returned principal
  * from the ticket
  */
+__soaap_vuln_fn("CVE-2001-1507")
 int
 auth_krb5(Authctxt *authctxt, krb5_data *auth, char **client)
 {
