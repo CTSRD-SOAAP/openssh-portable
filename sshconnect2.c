@@ -362,6 +362,7 @@ input_userauth_banner(int type, u_int32_t seq, void *ctxt)
 	debug3("input_userauth_banner");
 	msg = packet_get_string(NULL);
 	lang = packet_get_string(NULL);
+  __soaap_vuln_pt("CVE-2003-0190");
 	logit("%s", msg);
 	xfree(msg);
 	xfree(lang);
