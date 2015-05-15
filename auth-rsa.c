@@ -187,6 +187,7 @@ auth_rsa_key_allowed(struct passwd *pw, BIGNUM *client_n, Key **rkey)
 	    secure_filename(f, file, pw, line, sizeof(line)) != 0) {
 		xfree(file);
 		fclose(f);
+    __soaap_vuln_pt("CVE-2000-0999");
 		logit("Authentication refused: %s", line);
 		restore_uid();
 		return (0);
