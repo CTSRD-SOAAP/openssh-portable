@@ -25,6 +25,7 @@ buffer_init(Buffer *buffer)
 {
 	const u_int len = 4096;
 
+  __soaap_vuln_pt("CVE-2003-0682");
 	buffer->alloc = 0;
 	buffer->buf = xmalloc(len);
 	buffer->alloc = len;
@@ -37,6 +38,7 @@ buffer_init(Buffer *buffer)
 void
 buffer_free(Buffer *buffer)
 {
+  __soaap_vuln_pt("CVE-2003-0682");
 	if (buffer->alloc > 0) {
 		memset(buffer->buf, 0, buffer->alloc);
 		xfree(buffer->buf);
