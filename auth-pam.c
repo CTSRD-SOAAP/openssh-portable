@@ -337,6 +337,8 @@ import_environments(Buffer *b)
 /*
  * Conversation function for authentication thread.
  */
+__soaap_vuln_fn("CVE-2003-0786")
+__soaap_vuln_fn("CVE-2003-0787")
 static int
 sshpam_thread_conv(int n, sshpam_const struct pam_message **msg,
     struct pam_response **resp, void *data)
