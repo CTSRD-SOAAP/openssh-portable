@@ -641,6 +641,8 @@ getpwnamallow(const char *user)
 		debug("unable to get login class: %s", user);
 		return (NULL);
 	}
+
+  __soaap_vuln_pt("CVE-2002-0765");
 #ifdef BSD_AUTH
 	if ((as = auth_open()) == NULL || auth_setpwd(as, pw) != 0 ||
 	    auth_approval(as, lc, pw->pw_name, "ssh") <= 0) {
