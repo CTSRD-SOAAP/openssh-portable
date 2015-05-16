@@ -1234,6 +1234,7 @@ fail:
 }
 
 /* returns 0 if key verifies or -1 if key does NOT verify */
+__soaap_vuln_fn("CVE-2014-2653")
 int
 verify_host_key(char *host, struct sockaddr *hostaddr, Key *host_key)
 {
