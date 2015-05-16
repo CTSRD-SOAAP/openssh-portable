@@ -1434,6 +1434,7 @@ ssh_packet_read_poll1(struct ssh *ssh, u_char *typep)
 	 * (C)1998 CORE-SDI, Buenos Aires Argentina
 	 * Ariel Futoransky(futo@core-sdi.com)
 	 */
+  __soaap_vuln_pt("CVE-2006-4924");
 	if (!state->receive_context.plaintext) {
 		emsg = NULL;
 		switch (detect_attack(&state->deattack,
