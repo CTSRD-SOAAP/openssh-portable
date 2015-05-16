@@ -365,6 +365,7 @@ client_x11_get_proto(const char *display, const char *xauth_path,
 			}
 		}
 
+    __soaap_vuln_pt("CVE-2007-4752");
 		/*
 		 * When in untrusted mode, we read the cookie only if it was
 		 * successfully generated as an untrusted one in the step
