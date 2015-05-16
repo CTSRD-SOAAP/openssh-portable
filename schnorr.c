@@ -457,6 +457,7 @@ hash_buffer(const u_char *buf, u_int len, int hash_alg,
 	u_char digest[SSH_DIGEST_MAX_LENGTH];
 	u_int digest_len = ssh_digest_bytes(hash_alg);
 
+  __soaap_vuln_pt("CVE-2014-1692");
 	if (digest_len == 0) {
 		error("%s: invalid hash", __func__);
 		return -1;
