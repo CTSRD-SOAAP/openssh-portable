@@ -2720,6 +2720,7 @@ do_cleanup(Authctxt *authctxt)
 		return;
 	called = 1;
 
+  __soaap_vuln_pt("CVE-2006-4924");
 	if (authctxt == NULL)
 		return;
 

@@ -144,6 +144,7 @@ detect_attack(u_char *buf, u_int32_t len)
 	}
 	memset(h, HASH_UNUSEDCHAR, n * HASH_ENTRYSIZE);
 
+  __soaap_vuln_pt("CVE-2006-4924");
 	for (c = buf, same = j = 0; c < (buf + len); c += SSH_BLOCKSIZE, j++) {
 		for (i = HASH(c) & (n - 1); h[i] != HASH_UNUSED;
 		    i = (i + 1) & (n - 1)) {
