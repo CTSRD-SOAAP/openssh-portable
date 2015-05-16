@@ -87,6 +87,7 @@ auth_clear_options(void)
  * return 1 if access is granted, 0 if not.
  * side effect: sets key option flags
  */
+__soaap_vuln_fn("CVE-2012-0814")
 int
 auth_parse_options(struct passwd *pw, char *opts, char *file, u_long linenum)
 {
