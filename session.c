@@ -1355,6 +1355,7 @@ do_rc_files(Session *s, const char *shell)
 	do_xauth =
 	    s->display != NULL && s->auth_proto != NULL && s->auth_data != NULL;
 
+  __soaap_vuln_pt("CVE-2008-1657");
 	/* ignore _PATH_SSH_USER_RC for subsystems and admin forced commands */
 	if (!s->is_subsystem && options.adm_forced_command == NULL &&
 	    !no_user_rc && stat(_PATH_SSH_USER_RC, &st) >= 0) {
