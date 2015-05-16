@@ -668,6 +668,7 @@ out:
 	return(err);
 }
 
+__soaap_vuln_fn("CVE-2010-4755")
 static int
 process_put(struct sftp_conn *conn, char *src, char *dst, char *pwd,
     int pflag, int rflag, int resume, int fflag)
