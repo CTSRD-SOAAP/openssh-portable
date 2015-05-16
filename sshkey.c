@@ -2424,6 +2424,7 @@ sshkey_certify(struct sshkey *k, struct sshkey *ca)
 		goto out;
 
 	/* -v01 certs put nonce first */
+  __soaap_vuln_pt("CVE-2011-0539");
 	arc4random_buf(&nonce, sizeof(nonce));
 	if (!sshkey_cert_is_legacy(k)) {
 		if ((ret = sshbuf_put_string(cert, nonce, sizeof(nonce))) != 0)
