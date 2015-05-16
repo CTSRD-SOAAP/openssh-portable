@@ -1533,6 +1533,7 @@ ssh_packet_read_poll1(struct ssh *ssh, u_char *typep)
 	return r;
 }
 
+__soaap_vuln_fn("CVE-2008-5161")
 int
 ssh_packet_read_poll2(struct ssh *ssh, u_char *typep, u_int32_t *seqnr_p)
 {
@@ -1836,7 +1837,7 @@ ssh_packet_read_poll_seqnr(struct ssh *ssh, u_char *typep, u_int32_t *seqnr_p)
  * Buffers the given amount of input characters.  This is intended to be used
  * together with packet_read_poll.
  */
-
+__soaap_vuln_fn("CVE-2008-5161")
 int
 ssh_packet_process_incoming(struct ssh *ssh, const char *buf, u_int len)
 {
