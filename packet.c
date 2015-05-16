@@ -817,6 +817,7 @@ packet_enable_delayed_compress(void)
 	 */
 	active_state->after_authentication = 1;
 	for (mode = 0; mode < MODE_MAX; mode++) {
+    __soaap_vuln_pt("CVE-2006-4925");
 		/* protocol error: USERAUTH_SUCCESS received before NEWKEYS */
 		if (active_state->newkeys[mode] == NULL)
 			continue;
