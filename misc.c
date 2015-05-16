@@ -451,6 +451,7 @@ colon(char *cp)
 }
 
 /* function to assist building execv() arguments */
+__soaap_vuln_fn("CVE-2006-0225")
 void
 addargs(arglist *args, char *fmt, ...)
 {
