@@ -132,6 +132,7 @@ fudge_stat(const char *path, struct stat *st)
 	return(0);
 }
 
+__soaap_vuln_fn("CVE-2010-4755")
 int
 remote_glob(struct sftp_conn *conn, const char *pattern, int flags,
     int (*errfunc)(const char *, int), glob_t *pglob)
