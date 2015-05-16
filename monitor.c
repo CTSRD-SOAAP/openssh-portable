@@ -384,6 +384,7 @@ monitor_child_preauth(Authctxt *_authctxt, struct monitor *pmonitor)
 		partial = 0;
 		auth_method = "unknown";
 		auth_submethod = NULL;
+    __soaap_vuln_pt("CVE-2006-5794");
 		authenticated = (monitor_read(pmonitor, mon_dispatch, &ent) == 1);
 
 		/* Special handling for multiple required authentications */
@@ -1464,6 +1465,7 @@ mm_answer_keyverify(int sock, Buffer *m)
 	buffer_put_int(m, verified);
 	mm_request_send("preauth", sock, MONITOR_ANS_KEYVERIFY, m);
 
+  __soaap_vuln_pt("CVE-2006-5794");
 	return (verified == 1);
 }
 
