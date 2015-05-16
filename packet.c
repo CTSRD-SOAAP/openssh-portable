@@ -1027,6 +1027,7 @@ ssh_packet_enable_delayed_compress(struct ssh *ssh)
 	 */
 	state->after_authentication = 1;
 	for (mode = 0; mode < MODE_MAX; mode++) {
+    __soaap_vuln_pt("CVE-2006-4925");
 		/* protocol error: USERAUTH_SUCCESS received before NEWKEYS */
 		if (state->newkeys[mode] == NULL)
 			continue;
