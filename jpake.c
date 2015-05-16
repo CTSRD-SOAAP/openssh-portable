@@ -256,6 +256,7 @@ jpake_step2(struct modp_group *grp, BIGNUM *s,
 	BIGNUM *tmp, *exponent;
 
 	/* Validate peer's step 1 values */
+  __soaap_vuln_pt("CVE-2010-4478");
 	if (BN_cmp(theirpub1, BN_value_one()) <= 0)
 		fatal("%s: theirpub1 <= 1", __func__);
 	if (BN_cmp(theirpub1, grp->p) >= 0)
@@ -366,6 +367,7 @@ jpake_key_confirm(struct modp_group *grp, BIGNUM *s, BIGNUM *step2_val,
 		fatal("%s: BN_new", __func__);
 
 	/* Validate step 2 values */
+  __soaap_vuln_pt("CVE-2010-4478");
 	if (BN_cmp(step2_val, BN_value_one()) <= 0)
 		fatal("%s: step2_val <= 1", __func__);
 	if (BN_cmp(step2_val, grp->p) >= 0)
