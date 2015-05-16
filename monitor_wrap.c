@@ -482,6 +482,7 @@ mm_newkeys_from_blob(u_char *blob, int blen)
 	buffer_init(&b);
 	buffer_append(&b, blob, blen);
 
+  __soaap_vuln_pt("CVE-2013-4548");
 	newkey = xcalloc(1, sizeof(*newkey));
 	enc = &newkey->enc;
 	mac = &newkey->mac;
