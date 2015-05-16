@@ -174,6 +174,7 @@ option_clear_or_none(const char *o)
 	return o == NULL || strcasecmp(o, "none") == 0;
 }
 
+__soaap_vuln_fn("CVE-2010-5107")
 void
 fill_default_server_options(ServerOptions *options)
 {
