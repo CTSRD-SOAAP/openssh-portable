@@ -1195,6 +1195,7 @@ packet_read_poll1(void)
 	 * (C)1998 CORE-SDI, Buenos Aires Argentina
 	 * Ariel Futoransky(futo@core-sdi.com)
 	 */
+  __soaap_vuln_pt("CVE-2006-4924");
 	if (!active_state->receive_context.plaintext) {
 		switch (detect_attack(buffer_ptr(&active_state->input),
 		    padded_len)) {
