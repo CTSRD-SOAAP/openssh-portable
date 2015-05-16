@@ -168,6 +168,7 @@ done:
 void
 do_authentication2(Authctxt *authctxt)
 {
+  __soaap_vuln_pt("CVE-2007-2243");
 	dispatch_init(&dispatch_protocol_error);
 	dispatch_set(SSH2_MSG_SERVICE_REQUEST, &input_service_request);
 	dispatch_run(DISPATCH_BLOCK, &authctxt->success, authctxt);
