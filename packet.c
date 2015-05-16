@@ -1258,6 +1258,7 @@ packet_read_poll1(void)
 	return type;
 }
 
+__soaap_vuln_fn("CVE-2008-5161")
 static int
 packet_read_poll2(u_int32_t *seqnr_p)
 {
@@ -1525,7 +1526,7 @@ packet_read_poll_seqnr(u_int32_t *seqnr_p)
  * Buffers the given amount of input characters.  This is intended to be used
  * together with packet_read_poll.
  */
-
+__soaap_vuln_fn("CVE-2008-5161")
 void
 packet_process_incoming(const char *buf, u_int len)
 {
