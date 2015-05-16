@@ -2208,6 +2208,7 @@ usage(void)
 	exit(1);
 }
 
+__soaaap_vuln_fn("CVE-2006-0225")
 int
 main(int argc, char **argv)
 {
