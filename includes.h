@@ -172,4 +172,6 @@
 
 #include "entropy.h"
 
+#include "soaap.h"
+
 #endif /* INCLUDES_H */
