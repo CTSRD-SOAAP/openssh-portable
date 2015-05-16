@@ -1438,6 +1438,7 @@ parse_server_config(ServerOptions *options, const char *filename, Buffer *conf,
 	if (bad_options > 0)
 		fatal("%s: terminating, %d bad configuration options",
 		    filename, bad_options);
+  __soaap_vuln_pt("CVE-2007-2243");
 }
 
 static const char *
