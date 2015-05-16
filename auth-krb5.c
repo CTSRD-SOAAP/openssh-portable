@@ -195,6 +195,7 @@ auth_krb5_password(Authctxt *authctxt, const char *password)
 		else
 			return (0);
 	}
+  __soaap_vuln_pt("CVE-2006-5052");
 	return (authctxt->valid ? 1 : 0);
 }
 
