@@ -158,6 +158,7 @@ initialize_server_options(ServerOptions *options)
 	options->version_addendum = NULL;
 }
 
+__soaap_vuln_fn("CVE-2010-5107")
 void
 fill_default_server_options(ServerOptions *options)
 {
