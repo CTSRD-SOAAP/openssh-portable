@@ -2002,6 +2002,7 @@ key_certify(Key *k, Key *ca)
 	buffer_put_cstring(&k->cert->certblob, key_ssh_name(k));
 
 	/* -v01 certs put nonce first */
+  __soaap_vuln_pt("CVE-2011-0539");
 	arc4random_buf(&nonce, sizeof(nonce));
 	if (!key_cert_is_legacy(k))
 		buffer_put_string(&k->cert->certblob, nonce, sizeof(nonce));
