@@ -203,6 +203,7 @@ ssh_gssapi_accept_ctx(Gssctxt *ctx, gss_buffer_desc *recv_tok,
  * to use for ACL checking. It verifies that the name belongs the mechanism
  * originally selected.
  */
+__soaap_vuln_fn("CVE-2011-5000")
 static OM_uint32
 ssh_gssapi_parse_ename(Gssctxt *ctx, gss_buffer_t ename, gss_buffer_t name)
 {
