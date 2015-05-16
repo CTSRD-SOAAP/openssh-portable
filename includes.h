@@ -168,4 +168,6 @@ static /**/const char *const rcsid[] = { (char *)rcsid, "\100(#)" msg }
 
 #include "entropy.h"
 
+#include "soaap.h"
+
 #endif /* INCLUDES_H */
